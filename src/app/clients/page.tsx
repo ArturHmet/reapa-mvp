@@ -38,22 +38,22 @@ export default function ClientsPage() {
       </div>
 
       {/* Funnel Overview */}
-      <div className="grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
         {(["new", "qualified", "viewing", "offer", "closed"] as const).map(stage => {
           const count = clients.filter(c => c.stage === stage).length;
           return (
             <button
               key={stage}
               onClick={() => setStageFilter(stageFilter === stage ? "all" : stage)}
-              className={`p-3 rounded-xl border text-center transition-all ${
+              className={`p-2.5 sm:p-3 rounded-xl border text-center transition-all ${
                 stageFilter === stage
                   ? "border-[var(--accent)] bg-[var(--accent)]/10"
                   : "border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--accent)]/30"
               }`}
             >
-              <div className={`w-3 h-3 rounded-full mx-auto mb-2 ${stageColors[stage]}`} />
-              <div className="text-lg font-bold">{count}</div>
-              <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">{stageLabels[stage]}</div>
+              <div className={`w-3 h-3 rounded-full mx-auto mb-1.5 sm:mb-2 ${stageColors[stage]}`} />
+              <div className="text-base sm:text-lg font-bold">{count}</div>
+              <div className="text-[9px] sm:text-[10px] text-[var(--text-muted)] uppercase tracking-wider">{stageLabels[stage]}</div>
             </button>
           );
         })}
@@ -74,7 +74,7 @@ export default function ClientsPage() {
       )}
 
       {/* Search */}
-      <div className="relative max-w-sm">
+      <div className="relative sm:max-w-sm">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
         <input
           type="text"
@@ -101,32 +101,32 @@ function ClientCard({ client }: { client: Client }) {
 
   return (
     <Card className={`transition-colors cursor-pointer ${isGhost ? 'border-orange-500/30' : 'hover:border-[var(--accent)]/30'}`} onClick={() => setExpanded(!expanded)}>
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-3 md:gap-4">
         {/* Avatar */}
-        <div className={`w-11 h-11 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${stageColors[client.stage]}`}>
+        <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${stageColors[client.stage]}`}>
           {client.name.split(' ').map(n => n[0]).join('')}
         </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
             <span className="font-medium text-sm">{client.name}</span>
             <Badge variant={sentimentVariants[client.sentiment]}>
               {sentimentEmojis[client.sentiment]} {client.sentiment}
             </Badge>
             {isGhost && <Badge variant="orange">👻 {client.daysInactive}d inactive</Badge>}
           </div>
-          <div className="text-[11px] text-[var(--text-muted)] flex items-center gap-2 mb-1">
+          <div className="text-[11px] text-[var(--text-muted)] flex items-center gap-1 sm:gap-2 mb-1 flex-wrap">
             <span>{client.nationality}</span>
             <span>•</span>
             <span>{formatCurrency(client.budget)}</span>
-            <span>•</span>
-            <span>{client.bedrooms}BR {client.propertyType}</span>
-            <span>•</span>
-            <span>{client.preferredArea}</span>
+            <span className="hidden sm:inline">•</span>
+            <span className="hidden sm:inline">{client.bedrooms}BR {client.propertyType}</span>
+            <span className="hidden md:inline">•</span>
+            <span className="hidden md:inline">{client.preferredArea}</span>
           </div>
           <div className="text-xs text-[var(--text-muted)]">
-            {client.viewingsCount} viewings • Last contact: {timeAgo(client.lastContact)}
+            {client.viewingsCount} viewings • Last: {timeAgo(client.lastContact)}
           </div>
 
           {expanded && (
@@ -154,7 +154,7 @@ function ClientCard({ client }: { client: Client }) {
                   <span>New</span><span>Qualified</span><span>Viewing</span><span>Offer</span><span>Closed</span>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button className="px-3 py-1.5 bg-[var(--accent)] text-white text-xs rounded-lg hover:bg-[var(--accent-hover)] transition-colors flex items-center gap-1">
                   <Phone size={12} /> Call
                 </button>
@@ -162,7 +162,7 @@ function ClientCard({ client }: { client: Client }) {
                   <MessageSquare size={12} /> WhatsApp
                 </button>
                 <button className="px-3 py-1.5 bg-[var(--bg)] text-[var(--text)] text-xs rounded-lg border border-[var(--border)] hover:bg-[var(--bg-card-hover)] transition-colors flex items-center gap-1">
-                  <Eye size={12} /> Schedule Viewing
+                  <Eye size={12} /> Viewing
                 </button>
               </div>
             </div>
@@ -170,7 +170,7 @@ function ClientCard({ client }: { client: Client }) {
         </div>
 
         {/* Stage badge */}
-        <div className="text-right flex-shrink-0">
+        <div className="text-right flex-shrink-0 hidden sm:block">
           <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium ${stageColors[client.stage]}/15`}>
             <div className={`w-2 h-2 rounded-full ${stageColors[client.stage]}`} />
             {stageLabels[client.stage]}

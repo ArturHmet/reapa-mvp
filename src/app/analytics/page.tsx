@@ -31,21 +31,21 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Revenue Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <StatCard label="Monthly Revenue" value={formatCurrency(28500)} sub="+15% vs last month" icon={<DollarSign size={20} />} />
         <StatCard label="Deals Closed" value="2" sub="This month" icon={<Target size={20} />} />
         <StatCard label="Pipeline Value" value={formatCurrency(925000)} sub="3 active offers" icon={<TrendingUp size={20} />} />
         <StatCard label="Avg. Deal Size" value={formatCurrency(14250)} sub="Commission" icon={<BarChart3 size={20} />} />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Revenue Chart */}
         <Card>
           <h2 className="font-semibold text-sm mb-4">Revenue Trend (6 months)</h2>
-          <div className="flex items-end gap-2 h-40">
+          <div className="flex items-end gap-1.5 sm:gap-2 h-40">
             {monthlyRevenue.map(m => (
               <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
-                <div className="text-[10px] text-[var(--text-muted)]">{formatCurrency(m.value)}</div>
+                <div className="text-[9px] sm:text-[10px] text-[var(--text-muted)]">{formatCurrency(m.value)}</div>
                 <div
                   className="w-full rounded-t-md bg-gradient-to-t from-indigo-600 to-indigo-400 transition-all"
                   style={{ height: `${(m.value / maxRevenue) * 100}%`, minHeight: '8px' }}
@@ -93,11 +93,11 @@ export default function AnalyticsPage() {
       {/* Performance Metrics */}
       <Card>
         <h2 className="font-semibold text-sm mb-4">Agent Performance Scorecard</h2>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
           {agentMetrics.map(m => (
             <div key={m.metric} className="p-3 rounded-lg bg-[var(--bg)]">
               <div className="text-[10px] text-[var(--text-muted)] mb-1">{m.metric}</div>
-              <div className="text-lg font-bold">{m.value}</div>
+              <div className="text-base md:text-lg font-bold">{m.value}</div>
               <div className={`text-[10px] flex items-center gap-1 mt-1 ${
                 m.status === 'good' ? 'text-emerald-400' : 'text-orange-400'
               }`}>
@@ -124,7 +124,7 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Funnel */}
         <Card>
           <h2 className="font-semibold text-sm mb-4">Conversion Funnel</h2>
@@ -150,12 +150,12 @@ export default function AnalyticsPage() {
           <h2 className="font-semibold text-sm mb-4">Lead Source ROI</h2>
           <div className="space-y-3">
             {leadSourceData.map(source => (
-              <div key={source.source} className="flex items-center gap-3">
-                <div className="w-24 text-xs">{source.source}</div>
+              <div key={source.source} className="flex items-center gap-2 sm:gap-3">
+                <div className="w-20 sm:w-24 text-xs truncate">{source.source}</div>
                 <div className="flex-1">
                   <ProgressBar value={source.percentage} max={100} color="var(--accent)" />
                 </div>
-                <div className="text-xs text-[var(--text-muted)] w-20 text-right">{source.count} leads</div>
+                <div className="text-xs text-[var(--text-muted)] w-16 sm:w-20 text-right">{source.count} leads</div>
               </div>
             ))}
           </div>
