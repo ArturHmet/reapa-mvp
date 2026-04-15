@@ -1,0 +1,174 @@
+// REAPA Prisma Schema
+// Auto-generated from supabase/schema.sql
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Agent {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email          String   @unique
+  name           String
+  phone          String?
+  agency         String?
+  plan           String   @default("starter")
+  trialEndsAt    DateTime @default(dbgenerated("NOW() + INTERVAL '14 days'")) @map("trial_ends_at")
+  subscriptionId String?  @map("subscription_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  leads             Lead[]
+  clients           Client[]
+  listings          Listing[]
+  tasks             Task[]
+  complianceRecords ComplianceRecord[]
+
+  @@map("agents")
+}
+
+model Lead {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  agentId         String    @map("agent_id") @db.Uuid
+  name            String
+  email           String?
+  phone           String?
+  score           Int       @default(0)
+  temperature     String    @default("ice")
+  intent          String?
+  budgetRange     String?   @map("budget_range")
+  location        String?
+  timeline        String?
+  financingStatus String?   @map("financing_status")
+  source          String    @default("chat")
+  status          String    @default("new")
+  notes           String?
+  lastContactAt   DateTime? @map("last_contact_at")
+  nextFollowUpAt  DateTime? @map("next_follow_up_at")
+  chatHistory     Json      @default("[]") @map("chat_history")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  agent   Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  clients Client[]
+  tasks   Task[]
+
+  @@index([agentId])
+  @@index([temperature])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("leads")
+}
+
+model Client {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  agentId        String   @map("agent_id") @db.Uuid
+  leadId         String?  @map("lead_id") @db.Uuid
+  name           String
+  email          String?
+  phone          String?
+  nationality    String?
+  budgetMin      Int?     @map("budget_min")
+  budgetMax      Int?     @map("budget_max")
+  preferredAreas String[] @map("preferred_areas")
+  propertyType   String[] @map("property_type")
+  status         String   @default("active")
+  notes          String?
+  amlVerified    Boolean  @default(false) @map("aml_verified")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  agent             Agent              @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  lead              Lead?              @relation(fields: [leadId], references: [id])
+  listings          Listing[]
+  tasks             Task[]
+  complianceRecords ComplianceRecord[]
+
+  @@index([agentId])
+  @@map("clients")
+}
+
+model Listing {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  agentId             String   @map("agent_id") @db.Uuid
+  clientId            String?  @map("client_id") @db.Uuid
+  title               String
+  descriptionEn       String?  @map("description_en")
+  descriptionMt       String?  @map("description_mt")
+  descriptionRu       String?  @map("description_ru")
+  propertyType        String?  @map("property_type")
+  status              String   @default("draft")
+  price               Int?
+  bedrooms            Int?
+  bathrooms           Int?
+  areaSqm             Int?     @map("area_sqm")
+  location            String?
+  locality            String?
+  epcRating           String?  @map("epc_rating")
+  epcExpiresAt        DateTime? @map("epc_expires_at") @db.Date
+  housingAuthorityRef String?  @map("housing_authority_ref")
+  images              String[]
+  portalIds           Json     @default("{}") @map("portal_ids")
+  views               Int      @default(0)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  agent  Agent   @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  client Client? @relation(fields: [clientId], references: [id])
+  tasks  Task[]
+
+  @@index([agentId])
+  @@map("listings")
+}
+
+model Task {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  agentId     String    @map("agent_id") @db.Uuid
+  leadId      String?   @map("lead_id") @db.Uuid
+  clientId    String?   @map("client_id") @db.Uuid
+  listingId   String?   @map("listing_id") @db.Uuid
+  title       String
+  description String?
+  type        String?
+  priority    String    @default("medium")
+  status      String    @default("pending")
+  dueAt       DateTime? @map("due_at")
+  completedAt DateTime? @map("completed_at")
+  aiGenerated Boolean   @default(false) @map("ai_generated")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  agent   Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  lead    Lead?    @relation(fields: [leadId], references: [id])
+  client  Client?  @relation(fields: [clientId], references: [id])
+  listing Listing? @relation(fields: [listingId], references: [id])
+
+  @@index([agentId])
+  @@index([dueAt])
+  @@map("tasks")
+}
+
+model ComplianceRecord {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  agentId         String    @map("agent_id") @db.Uuid
+  clientId        String    @map("client_id") @db.Uuid
+  type            String
+  status          String    @default("pending")
+  referenceNumber String?   @map("reference_number")
+  documentUrl     String?   @map("document_url")
+  submittedAt     DateTime? @map("submitted_at")
+  approvedAt      DateTime? @map("approved_at")
+  expiresAt       DateTime? @map("expires_at")
+  notes           String?
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  agent  Agent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@map("compliance_records")
+}
