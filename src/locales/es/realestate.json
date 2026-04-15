@@ -1,0 +1,161 @@
+{
+  "leads": {
+    "title": "Motor de Leads",
+    "subtitle": "Leads clasificados por IA de todos los canales",
+    "newLead": "Nuevo Lead",
+    "score": "Puntuaci\u00f3n",
+    "temperature": {
+      "hot": "Caliente",
+      "warm": "Tibio",
+      "cold": "Fr\u00edo",
+      "ice": "Helado"
+    },
+    "intent": {
+      "buy": "Compra",
+      "sell": "Venta",
+      "rent": "Alquiler",
+      "valuation": "Valoraci\u00f3n",
+      "browse": "Buscando"
+    },
+    "source": {
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "portal": "Portal",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "referral": "Referido",
+      "chat": "Chat",
+      "manual": "Manual"
+    },
+    "status": {
+      "new": "Nuevo",
+      "contacted": "Contactado",
+      "qualified": "Calificado",
+      "negotiating": "Negociando",
+      "closed_won": "Cerrado ganado",
+      "closed_lost": "Cerrado perdido",
+      "nurture": "Nurturing"
+    },
+    "fields": {
+      "name": "Nombre",
+      "phone": "Tel\u00e9fono",
+      "email": "Email",
+      "budget": "Presupuesto",
+      "location": "Ubicaci\u00f3n",
+      "timeline": "Plazo",
+      "financing": "Financiaci\u00f3n",
+      "notes": "Notas"
+    },
+    "chat": {
+      "greeting": "\u00a1Hola! Soy REAPA, tu asistente inmobiliario. \u00bfC\u00f3mo puedo ayudarte?\n\n\u00bfEst\u00e1s buscando:\nA) Comprar una propiedad\nB) Vender una propiedad\nC) Alquilar\nD) Valoraci\u00f3n de propiedad\nE) Solo explorando",
+      "contactRequest": "Para conectarte con nuestro especialista, \u00bfpuedo obtener tu nombre y tel\u00e9fono?",
+      "thankYou": "\u00a1Gracias, {{name}}! Nuestro especialista se pondr\u00e1 en contacto contigo {{time}}.",
+      "hotTime": "en 15 minutos",
+      "warmTime": "en 2 horas",
+      "coldTime": "en 24 horas"
+    }
+  },
+  "clients": {
+    "title": "Clientes",
+    "subtitle": "Relaciones activas con clientes",
+    "newClient": "Nuevo Cliente",
+    "status": {
+      "active": "Activo",
+      "paused": "En pausa",
+      "closed": "Cerrado"
+    },
+    "fields": {
+      "nationality": "Nacionalidad",
+      "budgetRange": "Rango de presupuesto",
+      "preferredAreas": "Zonas preferidas",
+      "propertyType": "Tipo de propiedad",
+      "amlVerified": "AML Verificado"
+    }
+  },
+  "tasks": {
+    "title": "Autopiloto de Tareas",
+    "subtitle": "Tareas y plazos generados por IA",
+    "newTask": "Nueva Tarea",
+    "aiGenerated": "Generado por IA",
+    "priority": {
+      "critical": "Cr\u00edtico",
+      "high": "Alto",
+      "medium": "Medio",
+      "low": "Bajo"
+    },
+    "type": {
+      "call": "Llamada",
+      "viewing": "Visita",
+      "follow_up": "Seguimiento",
+      "document": "Documento",
+      "compliance": "Cumplimiento",
+      "other": "Otro"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "in_progress": "En progreso",
+      "completed": "Completado",
+      "cancelled": "Cancelado"
+    }
+  },
+  "listings": {
+    "title": "Propiedades",
+    "subtitle": "Cartera de propiedades",
+    "newListing": "Nueva Propiedad",
+    "propertyType": {
+      "apartment": "Apartamento",
+      "house": "Casa",
+      "villa": "Villa",
+      "penthouse": "\u00c1tico",
+      "townhouse": "Adosado",
+      "commercial": "Comercial",
+      "land": "Terreno"
+    },
+    "status": {
+      "draft": "Borrador",
+      "active": "Activo",
+      "pending": "Pendiente",
+      "sold": "Vendido",
+      "withdrawn": "Retirado"
+    },
+    "fields": {
+      "price": "Precio",
+      "bedrooms": "Dormitorios",
+      "bathrooms": "Ba\u00f1os",
+      "area": "\u00c1rea (m\u00b2)",
+      "epcRating": "Calificaci\u00f3n EPC",
+      "location": "Ubicaci\u00f3n"
+    }
+  },
+  "compliance": {
+    "title": "Cumplimiento",
+    "subtitle": "Registros AML/KYC y regulatorios",
+    "types": {
+      "aml_check": "Verificaci\u00f3n AML",
+      "kyc": "KYC",
+      "epc": "Certificado EPC",
+      "housing_authority": "Autoridad de Vivienda",
+      "promise_of_sale": "Promesa de Compraventa",
+      "final_deed": "Escritura Final",
+      "fiau_report": "Informe FIAU"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "submitted": "Enviado",
+      "approved": "Aprobado",
+      "rejected": "Rechazado",
+      "expired": "Expirado"
+    }
+  },
+  "dashboard": {
+    "title": "Panel de Control",
+    "stats": {
+      "totalLeads": "Total Leads",
+      "hotLeads": "Leads Calientes",
+      "activeClients": "Clientes Activos",
+      "pendingTasks": "Tareas Pendientes",
+      "revenue": "Valor del Pipeline",
+      "conversion": "Tasa de Conversi\u00f3n"
+    }
+  }
+}

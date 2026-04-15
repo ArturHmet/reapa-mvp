@@ -1,0 +1,59 @@
+{
+  "app": {
+    "name": "REAPA",
+    "tagline": "Asistente Personal IA para Agentes Inmobiliarios"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "leads": "Leads",
+    "clients": "Clientes",
+    "tasks": "Tareas",
+    "analytics": "Anal\u00edtica",
+    "listings": "Propiedades",
+    "compliance": "Cumplimiento",
+    "settings": "Configuraci\u00f3n"
+  },
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Agregar",
+    "create": "Crear",
+    "submit": "Enviar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "import": "Importar",
+    "back": "Atr\u00e1s",
+    "next": "Siguiente",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "view": "Ver",
+    "send": "Enviar",
+    "call": "Llamar",
+    "email": "Email"
+  },
+  "status": {
+    "loading": "Cargando...",
+    "saving": "Guardando...",
+    "error": "Algo sali\u00f3 mal",
+    "success": "\u00a1Listo!",
+    "noResults": "Sin resultados",
+    "empty": "Nada aqu\u00ed todav\u00eda"
+  },
+  "time": {
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "daysAgo": "hace {{count}} d\u00edas",
+    "hoursAgo": "hace {{count}} horas",
+    "minutesAgo": "hace {{count}} min",
+    "justNow": "Ahora mismo",
+    "tomorrow": "Ma\u00f1ana",
+    "nextWeek": "La pr\u00f3xima semana"
+  },
+  "language": {
+    "label": "Idioma",
+    "select": "Seleccionar idioma"
+  }
+}

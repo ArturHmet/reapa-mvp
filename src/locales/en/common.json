@@ -1,0 +1,59 @@
+{
+  "app": {
+    "name": "REAPA",
+    "tagline": "AI Personal Assistant for Real Estate"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "leads": "Leads",
+    "clients": "Clients",
+    "tasks": "Tasks",
+    "analytics": "Analytics",
+    "listings": "Listings",
+    "compliance": "Compliance",
+    "settings": "Settings"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "create": "Create",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "close": "Close",
+    "view": "View",
+    "send": "Send",
+    "call": "Call",
+    "email": "Email"
+  },
+  "status": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "error": "Something went wrong",
+    "success": "Done!",
+    "noResults": "No results found",
+    "empty": "Nothing here yet"
+  },
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "daysAgo": "{{count}} days ago",
+    "hoursAgo": "{{count}} hours ago",
+    "minutesAgo": "{{count}} min ago",
+    "justNow": "Just now",
+    "tomorrow": "Tomorrow",
+    "nextWeek": "Next week"
+  },
+  "language": {
+    "label": "Language",
+    "select": "Select language"
+  }
+}

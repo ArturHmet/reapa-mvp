@@ -1,0 +1,161 @@
+{
+  "leads": {
+    "title": "Lead Engine",
+    "subtitle": "AI-scored leads from all channels",
+    "newLead": "New Lead",
+    "score": "Score",
+    "temperature": {
+      "hot": "Hot",
+      "warm": "Warm",
+      "cold": "Cold",
+      "ice": "Ice"
+    },
+    "intent": {
+      "buy": "Buying",
+      "sell": "Selling",
+      "rent": "Renting",
+      "valuation": "Valuation",
+      "browse": "Browsing"
+    },
+    "source": {
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "portal": "Portal",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "referral": "Referral",
+      "chat": "Chat",
+      "manual": "Manual"
+    },
+    "status": {
+      "new": "New",
+      "contacted": "Contacted",
+      "qualified": "Qualified",
+      "negotiating": "Negotiating",
+      "closed_won": "Closed Won",
+      "closed_lost": "Closed Lost",
+      "nurture": "Nurture"
+    },
+    "fields": {
+      "name": "Name",
+      "phone": "Phone",
+      "email": "Email",
+      "budget": "Budget",
+      "location": "Location",
+      "timeline": "Timeline",
+      "financing": "Financing",
+      "notes": "Notes"
+    },
+    "chat": {
+      "greeting": "Hi! I'm REAPA, your real estate assistant. How can I help you today?\n\nAre you looking to:\nA) Buy a property\nB) Sell a property\nC) Rent a property\nD) Get a property valuation\nE) Just browsing",
+      "contactRequest": "To connect you with our specialist, could I get your name and phone number?",
+      "thankYou": "Thank you, {{name}}! Our specialist will be in touch {{time}}.",
+      "hotTime": "within 15 minutes",
+      "warmTime": "within 2 hours",
+      "coldTime": "within 24 hours"
+    }
+  },
+  "clients": {
+    "title": "Clients",
+    "subtitle": "Active client relationships",
+    "newClient": "New Client",
+    "status": {
+      "active": "Active",
+      "paused": "Paused",
+      "closed": "Closed"
+    },
+    "fields": {
+      "nationality": "Nationality",
+      "budgetRange": "Budget Range",
+      "preferredAreas": "Preferred Areas",
+      "propertyType": "Property Type",
+      "amlVerified": "AML Verified"
+    }
+  },
+  "tasks": {
+    "title": "Task Autopilot",
+    "subtitle": "AI-generated tasks & deadlines",
+    "newTask": "New Task",
+    "aiGenerated": "AI Generated",
+    "priority": {
+      "critical": "Critical",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "type": {
+      "call": "Call",
+      "viewing": "Viewing",
+      "follow_up": "Follow Up",
+      "document": "Document",
+      "compliance": "Compliance",
+      "other": "Other"
+    },
+    "status": {
+      "pending": "Pending",
+      "in_progress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "listings": {
+    "title": "Listings",
+    "subtitle": "Property portfolio",
+    "newListing": "New Listing",
+    "propertyType": {
+      "apartment": "Apartment",
+      "house": "House",
+      "villa": "Villa",
+      "penthouse": "Penthouse",
+      "townhouse": "Townhouse",
+      "commercial": "Commercial",
+      "land": "Land"
+    },
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "pending": "Pending",
+      "sold": "Sold",
+      "withdrawn": "Withdrawn"
+    },
+    "fields": {
+      "price": "Price",
+      "bedrooms": "Bedrooms",
+      "bathrooms": "Bathrooms",
+      "area": "Area (m\u00b2)",
+      "epcRating": "EPC Rating",
+      "location": "Location"
+    }
+  },
+  "compliance": {
+    "title": "Compliance",
+    "subtitle": "AML/KYC & regulatory records",
+    "types": {
+      "aml_check": "AML Check",
+      "kyc": "KYC",
+      "epc": "EPC Certificate",
+      "housing_authority": "Housing Authority",
+      "promise_of_sale": "Promise of Sale",
+      "final_deed": "Final Deed",
+      "fiau_report": "FIAU Report"
+    },
+    "status": {
+      "pending": "Pending",
+      "submitted": "Submitted",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "expired": "Expired"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "stats": {
+      "totalLeads": "Total Leads",
+      "hotLeads": "Hot Leads",
+      "activeClients": "Active Clients",
+      "pendingTasks": "Pending Tasks",
+      "revenue": "Pipeline Value",
+      "conversion": "Conversion Rate"
+    }
+  }
+}

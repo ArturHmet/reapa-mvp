@@ -1,0 +1,26 @@
+/* RTL Support — loaded globally for Arabic and future RTL locales */
+
+[dir="rtl"] {
+  /* Flip horizontal flex and grid layouts */
+  .flex-row { flex-direction: row-reverse; }
+  .space-x-2 > * + * { margin-left: 0; margin-right: 0.5rem; }
+  .space-x-3 > * + * { margin-left: 0; margin-right: 0.75rem; }
+  .space-x-4 > * + * { margin-left: 0; margin-right: 1rem; }
+
+  /* Flip sidebar position */
+  .sidebar-root {
+    left: auto;
+    right: 0;
+    border-left: none;
+    border-right: 1px solid var(--border);
+  }
+
+  /* Text alignment */
+  .text-start { text-align: right; }
+  .text-end { text-align: left; }
+
+  /* Flip icons */
+  .icon-directional {
+    transform: scaleX(-1);
+  }
+}
