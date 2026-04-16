@@ -12,6 +12,7 @@ export const metadata: Metadata = {
     description: "Insights, tactics, and AI strategies for real estate agents.",
     type: "website",
   },
+  robots: { index: true, follow: true },
 };
 
 export default function BlogPage() {
