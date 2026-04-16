@@ -9,24 +9,33 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: (cookiesToSet) => {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             );
-          } catch { /* setAll called from Server Component — safe to ignore */ }
+          } catch {
+            // setAll called from Server Component — safe to ignore
+          }
         },
       },
     }
   );
 }
 
-/** Server client with full service role (bypasses RLS) — use only in trusted server actions */
+/** Service-role admin client — bypasses RLS, use only in trusted server actions */
 export function createAdminClient() {
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { cookies: { getAll: () => [], setAll: () => {} } }
+    {
+      cookies: {
+        getAll() { return []; },
+        setAll() {},
+      },
+    }
   );
 }
