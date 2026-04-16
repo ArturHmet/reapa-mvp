@@ -8,7 +8,8 @@ function isValidEmail(email: string): boolean {
 
 export async function POST(req: NextRequest) {
   const clientId = getClientId(req);
-  const rl = rateLimit(clientId, { maxRequests: 3, windowMs: 3_600_000 });
+  // BUG-041b: await rateLimit() — now async (Supabase-backed since BUG-016 fix)
+  const rl = await rateLimit(clientId, { maxRequests: 3, windowMs: 3_600_000 });
   if (!rl.allowed) {
     return NextResponse.json(
       { error: "Too many requests" },
