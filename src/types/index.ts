@@ -1,38 +1,109 @@
-// REAPA Core Types
+/**
+ * REAPA Domain Types
+ * Mirrors Prisma schema models for use throughout the app.
+ * Source of truth: prisma/schema.prisma
+ */
 
-export type Temperature = "hot" | "warm" | "cold" | "ice";
-export type LeadIntent = "buy" | "sell" | "rent" | "valuation" | "browse";
-export type LeadSource = "chat" | "email" | "whatsapp" | "portal" | "instagram" | "facebook" | "referral" | "manual";
-export type LeadStatus = "new" | "contacted" | "qualified" | "negotiating" | "closed_won" | "closed_lost" | "nurture";
-export type PropertyType = "apartment" | "house" | "villa" | "penthouse" | "townhouse" | "commercial" | "land";
-export type ListingStatus = "draft" | "active" | "pending" | "sold" | "withdrawn";
-export type TaskType = "follow_up" | "viewing" | "offer" | "document" | "compliance" | "general";
-export type TaskPriority = "critical" | "high" | "medium" | "low";
+export type LeadStatus = "new" | "hot" | "warm" | "cold" | "ice" | "closed_won" | "closed_lost";
+export type ClientType = "buyer" | "seller" | "landlord" | "tenant";
+export type ClientStatus = "active" | "inactive" | "archived";
+export type ListingStatus = "active" | "under_offer" | "sold" | "rented" | "off_market";
 export type TaskStatus = "pending" | "in_progress" | "completed" | "cancelled";
-export type ClientStatus = "active" | "paused" | "closed";
-export type Plan = "starter" | "pro" | "enterprise";
-export type ComplianceType = "aml_check" | "kyc" | "epc" | "housing_authority" | "promise_of_sale" | "final_deed" | "fiau_report";
-export type ComplianceStatus = "pending" | "submitted" | "approved" | "rejected" | "expired";
-export type EpcRating = "A" | "B" | "C" | "D" | "E" | "F" | "G";
+export type TaskPriority = "low" | "medium" | "high" | "urgent";
+export type TransactionType = "buy" | "sell" | "rent" | "lease";
+export type SubscriptionTier = "free" | "starter" | "professional" | "enterprise";
 
-export interface LeadScoreResult {
-  score: number;
-  temperature: Temperature;
-  factors: {
-    intent: number;
-    timeline: number;
-    budget: number;
-    financing: number;
-    location: number;
-    contact: number;
-  };
+export interface Agent {
+  id: string;
+  email: string;
+  fullName: string;
+  agencyName?: string;
+  city: string;
+  language: string;
+  timezone: string;
+  subscriptionTier: SubscriptionTier;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface DashboardStats {
-  totalLeads: number;
-  hotLeads: number;
-  activeClients: number;
-  pendingTasks: number;
-  revenue: number;
-  conversionRate: number;
+export interface Lead {
+  id: string;
+  agentId: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone?: string;
+  status: LeadStatus;
+  propertyType?: string;
+  budgetMin?: number;
+  budgetMax?: number;
+  preferredLocations: string[];
+  notes?: string;
+  score: number;
+  source?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Client {
+  id: string;
+  agentId: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone?: string;
+  type: ClientType;
+  status: ClientStatus;
+  nationality?: string;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Listing {
+  id: string;
+  agentId: string;
+  title: string;
+  description?: string;
+  propertyType: string;
+  transactionType: TransactionType;
+  price: number;
+  areaSqm?: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  location: string;
+  address?: string;
+  status: ListingStatus;
+  epcRating?: string;
+  imageUrls: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Task {
+  id: string;
+  agentId: string;
+  leadId?: string;
+  clientId?: string;
+  listingId?: string;
+  title: string;
+  description?: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  dueDate?: Date;
+  completedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// API response wrappers
+export interface ApiResponse<T> {
+  data: T;
+  error?: string;
+}
+
+export interface PaginatedResponse<T> extends ApiResponse<T[]> {
+  total: number;
+  page: number;
+  pageSize: number;
 }

@@ -1,5 +1,7 @@
-// REAPA Prisma Schema
-// Matches supabase/schema.sql
+// REAPA — Prisma Schema
+// Mirrors Supabase PostgreSQL schema in src/db/schema.sql
+// Run: npx prisma db push  (dev)
+//      npx prisma migrate deploy  (prod)
 
 generator client {
   provider = "prisma-client-js"
@@ -12,161 +14,178 @@ datasource db {
 }
 
 model Agent {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email          String   @unique
-  name           String
-  phone          String?
-  agency         String?
-  plan           String   @default("starter")
-  trialEndsAt    DateTime @default(dbgenerated("NOW() + INTERVAL '14 days'")) @map("trial_ends_at")
-  subscriptionId String?  @map("subscription_id")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
+  id                String    @id @default(cuid())
+  email             String    @unique
+  fullName          String    @map("full_name")
+  agencyName        String?   @map("agency_name")
+  city              String    @default("Malta")
+  language          String    @default("en")
+  timezone          String    @default("Europe/Malta")
+  subscriptionTier  String    @default("free") @map("subscription_tier")
   leads             Lead[]
   clients           Client[]
-  listings          Listing[]
   tasks             Task[]
-  complianceRecords ComplianceRecord[]
+  listings          Listing[]
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   @@map("agents")
 }
 
 model Lead {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  agentId         String    @map("agent_id") @db.Uuid
-  name            String
-  email           String?
-  phone           String?
-  score           Int       @default(0)
-  temperature     String    @default("ice")
-  intent          String?
-  budgetRange     String?   @map("budget_range")
-  location        String?
-  timeline        String?
-  financingStatus String?   @map("financing_status")
-  source          String    @default("chat")
-  status          String    @default("new")
-  notes           String?
-  lastContactAt   DateTime? @map("last_contact_at")
-  nextFollowUpAt  DateTime? @map("next_follow_up_at")
-  chatHistory     Json      @default("[]") @map("chat_history")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-
-  agent   Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  clients Client[]
-  tasks   Task[]
+  id                  String   @id @default(cuid())
+  agentId             String   @map("agent_id")
+  agent               Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  firstName           String   @map("first_name")
+  lastName            String   @map("last_name")
+  email               String?
+  phone               String?
+  status              LeadStatus @default(NEW)
+  propertyType        String?  @map("property_type")
+  budgetMin           Float?   @map("budget_min")
+  budgetMax           Float?   @map("budget_max")
+  preferredLocations  String[] @map("preferred_locations")
+  notes               String?  @db.Text
+  score               Int      @default(0)
+  source              String?
+  tasks               Task[]
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
 
   @@index([agentId])
-  @@index([temperature])
   @@index([status])
-  @@index([createdAt(sort: Desc)])
   @@map("leads")
 }
 
 model Client {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  agentId        String   @map("agent_id") @db.Uuid
-  leadId         String?  @map("lead_id") @db.Uuid
-  name           String
-  email          String?
-  phone          String?
-  nationality    String?
-  budgetMin      Int?     @map("budget_min")
-  budgetMax      Int?     @map("budget_max")
-  preferredAreas String[] @map("preferred_areas")
-  propertyType   String[] @map("property_type")
-  status         String   @default("active")
-  notes          String?
-  amlVerified    Boolean  @default(false) @map("aml_verified")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
-  agent             Agent              @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  lead              Lead?              @relation(fields: [leadId], references: [id])
-  listings          Listing[]
-  tasks             Task[]
-  complianceRecords ComplianceRecord[]
+  id          String       @id @default(cuid())
+  agentId     String       @map("agent_id")
+  agent       Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  firstName   String       @map("first_name")
+  lastName    String       @map("last_name")
+  email       String?
+  phone       String?
+  type        ClientType
+  status      ClientStatus @default(ACTIVE)
+  nationality String?
+  notes       String?      @db.Text
+  tasks       Task[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
 
   @@index([agentId])
   @@map("clients")
 }
 
 model Listing {
-  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  agentId             String    @map("agent_id") @db.Uuid
-  clientId            String?   @map("client_id") @db.Uuid
-  title               String
-  descriptionEn       String?   @map("description_en")
-  propertyType        String?   @map("property_type")
-  status              String    @default("draft")
-  price               Int?
-  bedrooms            Int?
-  bathrooms           Int?
-  areaSqm             Int?      @map("area_sqm")
-  location            String?
-  locality            String?
-  epcRating           String?   @map("epc_rating")
-  epcExpiresAt        DateTime? @map("epc_expires_at") @db.Date
-  housingAuthorityRef String?   @map("housing_authority_ref")
-  images              String[]
-  portalIds           Json      @default("{}") @map("portal_ids")
-  views               Int       @default(0)
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
-
-  agent  Agent   @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  client Client? @relation(fields: [clientId], references: [id])
-  tasks  Task[]
+  id            String        @id @default(cuid())
+  agentId       String        @map("agent_id")
+  agent         Agent         @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  title         String
+  description   String?       @db.Text
+  propertyType  String        @map("property_type")
+  transactionType String      @map("transaction_type")
+  price         Float
+  areaSqm       Float?        @map("area_sqm")
+  bedrooms      Int?
+  bathrooms     Int?
+  location      String
+  address       String?
+  status        ListingStatus @default(ACTIVE)
+  epcRating     String?       @map("epc_rating")
+  imageUrls     String[]      @map("image_urls")
+  tasks         Task[]
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
 
   @@index([agentId])
+  @@index([status])
   @@map("listings")
 }
 
 model Task {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  agentId     String    @map("agent_id") @db.Uuid
-  leadId      String?   @map("lead_id") @db.Uuid
-  clientId    String?   @map("client_id") @db.Uuid
-  listingId   String?   @map("listing_id") @db.Uuid
+  id          String       @id @default(cuid())
+  agentId     String       @map("agent_id")
+  agent       Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  leadId      String?      @map("lead_id")
+  lead        Lead?        @relation(fields: [leadId], references: [id])
+  clientId    String?      @map("client_id")
+  client      Client?      @relation(fields: [clientId], references: [id])
+  listingId   String?      @map("listing_id")
+  listing     Listing?     @relation(fields: [listingId], references: [id])
   title       String
-  description String?
-  type        String?
-  priority    String    @default("medium")
-  status      String    @default("pending")
-  dueAt       DateTime? @map("due_at")
-  completedAt DateTime? @map("completed_at")
-  aiGenerated Boolean   @default(false) @map("ai_generated")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-
-  agent   Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  lead    Lead?    @relation(fields: [leadId], references: [id])
-  client  Client?  @relation(fields: [clientId], references: [id])
-  listing Listing? @relation(fields: [listingId], references: [id])
+  description String?      @db.Text
+  status      TaskStatus   @default(PENDING)
+  priority    TaskPriority @default(MEDIUM)
+  dueDate     DateTime?    @map("due_date")
+  completedAt DateTime?    @map("completed_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
 
   @@index([agentId])
-  @@index([dueAt])
+  @@index([status])
+  @@index([dueDate])
   @@map("tasks")
 }
 
 model ComplianceRecord {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  agentId         String    @map("agent_id") @db.Uuid
-  clientId        String    @map("client_id") @db.Uuid
-  type            String
-  status          String    @default("pending")
-  referenceNumber String?   @map("reference_number")
-  documentUrl     String?   @map("document_url")
-  submittedAt     DateTime? @map("submitted_at")
-  approvedAt      DateTime? @map("approved_at")
-  expiresAt       DateTime? @map("expires_at")
-  notes           String?
-  createdAt       DateTime  @default(now()) @map("created_at")
+  id                String   @id @default(cuid())
+  agentId           String   @map("agent_id")
+  leadId            String?  @map("lead_id")
+  clientId          String?  @map("client_id")
+  type              String   // aml_check, kyc, fiau_report, epc, konvenju
+  status            String   @default("pending")
+  documentUrls      String[] @map("document_urls")
+  notes             String?  @db.Text
+  expiresAt         DateTime? @map("expires_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
-  agent  Agent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
-
+  @@index([agentId])
   @@map("compliance_records")
+}
+
+enum LeadStatus {
+  NEW
+  HOT
+  WARM
+  COLD
+  ICE
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+enum ClientType {
+  BUYER
+  SELLER
+  LANDLORD
+  TENANT
+}
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum ListingStatus {
+  ACTIVE
+  UNDER_OFFER
+  SOLD
+  RENTED
+  OFF_MARKET
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
