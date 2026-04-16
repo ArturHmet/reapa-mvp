@@ -34,7 +34,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const admin = createAdminClient();
-    const { error } = await admin
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (admin as any)
       .from("waitlist")
       .upsert(
         { email, name, role, language, source },

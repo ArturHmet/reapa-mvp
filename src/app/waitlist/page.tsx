@@ -30,7 +30,10 @@ export default function WaitlistPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
       setStatus("success");
-      try { (window as Record<string, unknown> & { posthog?: { capture: (e: string, p: object) => void } }).posthog?.capture("waitlist_signup", { email: form.email, role: form.role, source }); } catch { /* ignore */ }
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).posthog?.capture("waitlist_signup", { email: form.email, role: form.role, source });
+      } catch { /* ignore */ }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
       setStatus("error");

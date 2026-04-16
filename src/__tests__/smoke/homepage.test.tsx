@@ -1,5 +1,17 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+
+// Mock fetch to prevent test timeouts from useEffect API calls
+// (page.tsx calls fetch("/api/dashboard") etc. in useEffect)
+beforeEach(() => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({}),
+    })
+  );
+});
 
 // Mock Next.js navigation
 vi.mock("next/navigation", () => ({
