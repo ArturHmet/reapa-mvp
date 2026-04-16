@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { REAPA_SYSTEM_PROMPT } from "@/prompts";
 import { rateLimit, getClientId } from "@/lib/rate-limit";
+import { runNLPPipeline } from "@/lib/ai/nlp-pipeline";
 
-export const runtime = "edge";
+// Fix 1: nodejs runtime — process.env resolved at runtime, not build time
+export const runtime = "nodejs";
 
-// ── Input validation ──────────────────────────────────────────────────────────
+// ── Input validation ────────────────────────────────────────────────────────────────────────────
 interface ChatMessage { role: "user" | "assistant"; content: string; }
 
 function validateInput(body: unknown): { messages: ChatMessage[] } | null {
@@ -22,19 +24,49 @@ function validateInput(body: unknown): { messages: ChatMessage[] } | null {
   return { messages: b.messages as ChatMessage[] };
 }
 
-// ── Auth check ────────────────────────────────────────────────────────────────
+// ── Auth check ──────────────────────────────────────────────────────────────────────────────────
 function checkAuth(req: NextRequest): boolean {
   const apiKey = process.env.REAPA_API_KEY;
-  if (!apiKey) return true; // No key configured — open in dev (rate limiting still applies)
+  if (!apiKey) return true; // No key configured – open in dev (rate limiting still applies)
   const provided = req.headers.get("x-api-key") ?? req.headers.get("authorization")?.replace("Bearer ", "");
-  // TODO: Replace with Supabase session check once auth is live:
-  // const session = await createServerClient(...).auth.getSession();
-  // return !!session.data.session;
+  // TODO: Replace with Supabase session check once auth is live
   return provided === apiKey;
 }
 
+// ── Stage 5: build NLP context string for system prompt injection ───────────────────────────────
+interface NLPEntity { value: string; }
+interface NLPResult {
+  language: string;
+  intent: string;
+  intentConfidence: number;
+  entities: {
+    budget?: NLPEntity;
+    location?: NLPEntity;
+    timeline?: NLPEntity;
+    bedrooms?: NLPEntity;
+    propertyType?: NLPEntity;
+  };
+  leadTemperature: string;
+  overallConfidence: number;
+}
+
+function buildNLPContext(nlp: NLPResult): string {
+  const ctx: Record<string, string | number> = {
+    language: nlp.language,
+    intent: nlp.intent,
+    confidence: nlp.intentConfidence,
+    temperature: nlp.leadTemperature,
+  };
+  if (nlp.entities.budget?.value)       ctx.budget       = nlp.entities.budget.value;
+  if (nlp.entities.location?.value)     ctx.location     = nlp.entities.location.value;
+  if (nlp.entities.timeline?.value)     ctx.timeline     = nlp.entities.timeline.value;
+  if (nlp.entities.bedrooms?.value)     ctx.bedrooms     = nlp.entities.bedrooms.value;
+  if (nlp.entities.propertyType?.value) ctx.propertyType = nlp.entities.propertyType.value;
+  return `User context: ${JSON.stringify(ctx)}`;
+}
+
 export async function POST(req: NextRequest) {
-  // ── Rate limiting: 20 req/min per IP ─────────────────────────────────────
+  // ── Rate limiting: 20 req/min per IP ────────────────────────────────────────────────────────
   const clientId = getClientId(req);
   const rl = rateLimit(clientId, { maxRequests: 20, windowMs: 60_000 });
   if (!rl.allowed) {
@@ -50,12 +82,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ── Auth ──────────────────────────────────────────────────────────────────
+  // ── Auth ─────────────────────────────────────────────────────────────────────────────────────
   if (!checkAuth(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // ── Input validation ──────────────────────────────────────────────────────
+  // ── Input validation ─────────────────────────────────────────────────────────────────────────
   let body: unknown;
   try { body = await req.json(); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
@@ -69,9 +101,19 @@ export async function POST(req: NextRequest) {
   }
 
   const { messages } = validated;
-  const systemPrompt = REAPA_SYSTEM_PROMPT();
+  const lastUserMessage = messages.findLast((m) => m.role === "user")?.content ?? "";
 
-  // ── Gemini 2.0 Flash (primary) ────────────────────────────────────────────
+  // ── Stage 5: NLP pipeline → inject enriched context into system prompt ───────────────────────
+  let systemPrompt = REAPA_SYSTEM_PROMPT();
+  try {
+    const nlp = await runNLPPipeline(lastUserMessage);
+    const nlpContext = buildNLPContext(nlp as NLPResult);
+    systemPrompt = `${systemPrompt}\n\n${nlpContext}`;
+  } catch (e) {
+    console.warn("[ai/chat] NLP pipeline failed (non-fatal, continuing without context):", e);
+  }
+
+  // ── Gemini 2.0 Flash (primary) ───────────────────────────────────────────────────────────────
   const geminiKey = process.env.GEMINI_API_KEY;
   if (geminiKey) {
     try {
@@ -136,7 +178,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── Groq Llama fallback ───────────────────────────────────────────────────
+  // ── Groq Llama fallback ──────────────────────────────────────────────────────────────────────
   const groqKey = process.env.GROQ_API_KEY;
   if (groqKey) {
     try {
