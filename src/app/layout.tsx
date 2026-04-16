@@ -24,6 +24,8 @@ export const viewport: Viewport = {
   maximumScale: 5,
   // WCAG 1.4.4 — user must be able to resize text up to 200%
   userScalable: true,
+  // MOB-002: enables env(safe-area-inset-*) on iOS notch / home-indicator devices
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
