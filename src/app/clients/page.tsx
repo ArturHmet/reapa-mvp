@@ -1,182 +1,100 @@
 "use client";
 import { Card, Badge, ProgressBar } from "@/components/UI";
-import { clients, type Client, funnelData } from "@/lib/data";
+import { clients as mockClients, type Client, funnelData } from "@/lib/data";
 import { formatCurrency, timeAgo } from "@/lib/utils";
 import { Search, AlertTriangle, TrendingUp, Ghost, MessageSquare, Phone, Eye } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const stageColors: Record<string, string> = {
-  new: "bg-blue-500", qualified: "bg-purple-500", viewing: "bg-orange-500", offer: "bg-yellow-500", closed: "bg-emerald-500"
-};
-const stageLabels: Record<string, string> = {
-  new: "New", qualified: "Qualified", viewing: "Viewing", offer: "Offer", closed: "Closed"
-};
-const sentimentEmojis: Record<string, string> = {
-  positive: "😊", neutral: "😐", hesitant: "😟", negative: "😠"
-};
-const sentimentVariants: Record<string, "green" | "muted" | "orange" | "red"> = {
-  positive: "green", neutral: "muted", hesitant: "orange", negative: "red"
-};
+const stageColors: Record<string, string> = { new: "bg-blue-500", qualified: "bg-purple-500", viewing: "bg-orange-500", offer: "bg-yellow-500", closed: "bg-emerald-500" };
+const stageLabels: Record<string, string> = { new: "New", qualified: "Qualified", viewing: "Viewing", offer: "Offer", closed: "Closed" };
+const sentimentEmojis: Record<string, string> = { positive: "😊", neutral: "😐", hesitant: "😟", negative: "😠" };
+const sentimentVariants: Record<string, "green" | "muted" | "orange" | "red"> = { positive: "green", neutral: "muted", hesitant: "orange", negative: "red" };
 
 export default function ClientsPage() {
+  const [clientsData, setClientsData] = useState<Client[]>(mockClients);
   const [stageFilter, setStageFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
 
-  const filtered = clients
+  useEffect(() => {
+    fetch("/api/clients").then(r => r.json()).then(setClientsData).catch(() => {});
+  }, []);
+
+  const filtered = clientsData
     .filter(c => stageFilter === "all" || c.stage === stageFilter)
     .filter(c => search === "" || c.name.toLowerCase().includes(search.toLowerCase()));
 
-  const ghostClients = clients.filter(c => c.daysInactive >= 5);
+  const ghostClients = clientsData.filter(c => c.daysInactive >= 5);
 
   return (
     <div className="max-w-7xl mx-auto space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold">Client Manager</h1>
-          <p className="text-sm text-[var(--text-muted)]">AI-powered CRM with sentiment tracking</p>
+          <p className="text-sm text-[var(--text-muted)]">Active clients & deal pipeline</p>
         </div>
+        {ghostClients.length > 0 && (
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-orange-500/10 border border-orange-500/20 rounded-lg text-orange-400 text-xs">
+            <AlertTriangle size={14} />
+            {ghostClients.length} ghost client{ghostClients.length > 1 ? 's' : ''} — no contact in 5+ days
+          </div>
+        )}
       </div>
 
       {/* Funnel Overview */}
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
         {(["new", "qualified", "viewing", "offer", "closed"] as const).map(stage => {
-          const count = clients.filter(c => c.stage === stage).length;
+          const count = clientsData.filter(c => c.stage === stage).length;
           return (
-            <button
-              key={stage}
-              onClick={() => setStageFilter(stageFilter === stage ? "all" : stage)}
-              className={`p-2.5 sm:p-3 rounded-xl border text-center transition-all ${
-                stageFilter === stage
-                  ? "border-[var(--accent)] bg-[var(--accent)]/10"
-                  : "border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--accent)]/30"
-              }`}
-            >
-              <div className={`w-3 h-3 rounded-full mx-auto mb-1.5 sm:mb-2 ${stageColors[stage]}`} />
-              <div className="text-base sm:text-lg font-bold">{count}</div>
-              <div className="text-[9px] sm:text-[10px] text-[var(--text-muted)] uppercase tracking-wider">{stageLabels[stage]}</div>
+            <button key={stage} onClick={() => setStageFilter(stageFilter === stage ? "all" : stage)}
+              className={`p-2 sm:p-3 rounded-xl border transition-all text-center ${stageFilter === stage ? 'border-[var(--accent)] bg-[var(--accent)]/10' : 'border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--accent)]/50'}`}>
+              <div className={`w-2 h-2 rounded-full mx-auto mb-1 ${stageColors[stage]}`} />
+              <div className="text-lg font-bold">{count}</div>
+              <div className="text-[10px] text-[var(--text-muted)]">{stageLabels[stage]}</div>
             </button>
           );
         })}
       </div>
 
-      {/* Ghost Alert */}
-      {ghostClients.length > 0 && (
-        <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 flex items-start gap-3">
-          <Ghost size={20} className="text-orange-400 flex-shrink-0 mt-0.5" />
-          <div>
-            <div className="text-sm font-medium text-orange-400">Ghost Client Alert</div>
-            <div className="text-xs text-[var(--text-muted)] mt-1">
-              {ghostClients.map(c => c.name).join(', ')} — inactive for {ghostClients[0].daysInactive}+ days.
-              AI suggests re-engagement via market update or buy-vs-rent analysis.
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Search */}
-      <div className="relative sm:max-w-sm">
+      <div className="relative max-w-sm">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
-        <input
-          type="text"
-          placeholder="Search clients..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-lg text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
-        />
+        <input type="text" placeholder="Search clients..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-lg text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]" />
       </div>
 
       {/* Client Cards */}
       <div className="space-y-3">
         {filtered.map(client => (
-          <ClientCard key={client.id} client={client} />
+          <Card key={client.id} className={`hover:border-[var(--accent)]/30 transition-colors ${client.daysInactive >= 5 ? 'border-orange-500/30' : ''}`}>
+            <div className="flex items-start gap-3 md:gap-4">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                {client.name.split(' ').map(n => n[0]).join('')}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <span className="font-medium text-sm">{client.name}</span>
+                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${stageColors[client.stage] || 'bg-gray-500'}`} />
+                  <span className="text-[10px] text-[var(--text-muted)]">{stageLabels[client.stage] || client.stage}</span>
+                  {client.daysInactive >= 5 && <span className="text-[10px] text-orange-400 flex items-center gap-1"><Ghost size={10} /> Ghost</span>}
+                </div>
+                <div className="text-[11px] text-[var(--text-muted)] flex items-center gap-1 sm:gap-2 mb-2 flex-wrap">
+                  <span>{client.nationality}</span><span>•</span><span>{formatCurrency(client.budget)}</span>
+                  <span className="hidden sm:inline">•</span><span className="hidden sm:inline">{client.bedrooms}BR {client.propertyType}</span>
+                  <span className="hidden sm:inline">•</span><span className="hidden sm:inline">{client.preferredArea}</span>
+                </div>
+                <div className="flex items-center gap-3 text-xs">
+                  <span className="text-[var(--text-muted)]">Last contact: {timeAgo(client.lastContact)}</span>
+                  <Badge variant={sentimentVariants[client.sentiment]}>{sentimentEmojis[client.sentiment]} {client.sentiment}</Badge>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5 flex-shrink-0">
+                <button className="p-1.5 rounded-lg bg-[var(--bg)] border border-[var(--border)] hover:bg-[var(--bg-card-hover)] transition-colors"><Phone size={13} className="text-[var(--text-muted)]" /></button>
+                <button className="p-1.5 rounded-lg bg-[var(--bg)] border border-[var(--border)] hover:bg-[var(--bg-card-hover)] transition-colors"><MessageSquare size={13} className="text-[var(--text-muted)]" /></button>
+                <button className="p-1.5 rounded-lg bg-[var(--bg)] border border-[var(--border)] hover:bg-[var(--bg-card-hover)] transition-colors"><Eye size={13} className="text-[var(--text-muted)]" /></button>
+              </div>
+            </div>
+          </Card>
         ))}
       </div>
     </div>
-  );
-}
-
-function ClientCard({ client }: { client: Client }) {
-  const [expanded, setExpanded] = useState(false);
-  const isGhost = client.daysInactive >= 5;
-
-  return (
-    <Card className={`transition-colors cursor-pointer ${isGhost ? 'border-orange-500/30' : 'hover:border-[var(--accent)]/30'}`} onClick={() => setExpanded(!expanded)}>
-      <div className="flex items-start gap-3 md:gap-4">
-        {/* Avatar */}
-        <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${stageColors[client.stage]}`}>
-          {client.name.split(' ').map(n => n[0]).join('')}
-        </div>
-
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="font-medium text-sm">{client.name}</span>
-            <Badge variant={sentimentVariants[client.sentiment]}>
-              {sentimentEmojis[client.sentiment]} {client.sentiment}
-            </Badge>
-            {isGhost && <Badge variant="orange">👻 {client.daysInactive}d inactive</Badge>}
-          </div>
-          <div className="text-[11px] text-[var(--text-muted)] flex items-center gap-1 sm:gap-2 mb-1 flex-wrap">
-            <span>{client.nationality}</span>
-            <span>•</span>
-            <span>{formatCurrency(client.budget)}</span>
-            <span className="hidden sm:inline">•</span>
-            <span className="hidden sm:inline">{client.bedrooms}BR {client.propertyType}</span>
-            <span className="hidden md:inline">•</span>
-            <span className="hidden md:inline">{client.preferredArea}</span>
-          </div>
-          <div className="text-xs text-[var(--text-muted)]">
-            {client.viewingsCount} viewings • Last: {timeAgo(client.lastContact)}
-          </div>
-
-          {expanded && (
-            <div className="mt-3 pt-3 border-t border-[var(--border)] space-y-3">
-              <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-lg p-3">
-                <div className="text-[10px] text-indigo-400 font-medium mb-1">🤖 AI Notes</div>
-                <div className="text-xs">{client.notes}</div>
-              </div>
-              {/* Stage Progress */}
-              <div>
-                <div className="text-[10px] text-[var(--text-muted)] mb-2">Client Journey</div>
-                <div className="flex items-center gap-1">
-                  {(["new", "qualified", "viewing", "offer", "closed"] as const).map((s, i) => {
-                    const stages = ["new", "qualified", "viewing", "offer", "closed"];
-                    const current = stages.indexOf(client.stage);
-                    const active = i <= current;
-                    return (
-                      <div key={s} className="flex items-center gap-1 flex-1">
-                        <div className={`h-1.5 flex-1 rounded-full ${active ? stageColors[s] : 'bg-[var(--bg)]'}`} />
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="flex justify-between text-[9px] text-[var(--text-muted)] mt-1">
-                  <span>New</span><span>Qualified</span><span>Viewing</span><span>Offer</span><span>Closed</span>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button className="px-3 py-1.5 bg-[var(--accent)] text-white text-xs rounded-lg hover:bg-[var(--accent-hover)] transition-colors flex items-center gap-1">
-                  <Phone size={12} /> Call
-                </button>
-                <button className="px-3 py-1.5 bg-[var(--bg)] text-[var(--text)] text-xs rounded-lg border border-[var(--border)] hover:bg-[var(--bg-card-hover)] transition-colors flex items-center gap-1">
-                  <MessageSquare size={12} /> WhatsApp
-                </button>
-                <button className="px-3 py-1.5 bg-[var(--bg)] text-[var(--text)] text-xs rounded-lg border border-[var(--border)] hover:bg-[var(--bg-card-hover)] transition-colors flex items-center gap-1">
-                  <Eye size={12} /> Viewing
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Stage badge */}
-        <div className="text-right flex-shrink-0 hidden sm:block">
-          <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium ${stageColors[client.stage]}/15`}>
-            <div className={`w-2 h-2 rounded-full ${stageColors[client.stage]}`} />
-            {stageLabels[client.stage]}
-          </div>
-        </div>
-      </div>
-    </Card>
   );
 }
