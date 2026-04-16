@@ -10,8 +10,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
+  // WCAG 1.4.4 — user must be able to resize text up to 200%
+  userScalable: true,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
