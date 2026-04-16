@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runNLPPipeline } from "@/lib/ai/nlp-pipeline";
 
-export const runtime = "edge";
+// BUG-039: edge runtime cannot import franc-min (CJS); nodejs resolves process.env at request time
+export const runtime = "nodejs";
 
 const SCORING = {
   intent: { buy: 30, sell: 30, valuation: 30, rent: 20, browse: 5 },
@@ -93,12 +94,12 @@ function getNextQuestion(
     }
     case 5: {
       const phoneMatch = msg.match(/(\+356\s?)?(\d[\d\s]{6,11})/);
-      const emailMatch = msg.match(/[\w.-]+@[\w.-]+\.\w+/);
-      s = { ...s, name: userMessage.split(",")[0].trim(), phone: phoneMatch?.[0], email: emailMatch?.[0], score: s.score + (phoneMatch||emailMatch ? SCORING.contactProvided : 0), step: 6 };
+      const emailMatch = msg.match(/[\w.-]+@[\w.-]+\.\w-/);
+      s = { ...s, name: userMessage.split(",")[0].trim(), phone: phoneMatch?[0], email: emailMatch?[0], score: s.score + (phoneMatch||emailMatch ? SCORING.contactProvided : 0), step: 6 };
       const temp = getTemperature(s.score);
       const times: Record<string, string> = { hot: "within 15 minutes", warm: "within 2 hours", cold: "within 24 hours", ice: "soon" };
       const name = s.name?.split(" ")[0] || "there";
-      return { message: `Thank you, ${name}! Our specialist will be in touch ${times[temp]}.\n\nI\u2019ve found properties matching your criteria. Our agent will have a full briefing ready for your call.`, newState: s, isComplete: true };
+      return { message: `Tank you, ${name}! Our specialist will be in touch ${times[temp]}.\n\nI\u2019ve found properties matching your criteria. Our agent will have a full briefing ready for your call.`, newState: s, isComplete: true };
     }
     default:
       return { message: "Is there anything else I can help you with?", newState: s, isComplete: true };
@@ -112,7 +113,7 @@ export async function POST(req: NextRequest) {
     const currentState: LeadState = state || { step: 0, score: 0 };
     const lastUserMessage = messages[messages.length - 1]?.content || "";
 
-    // \u2500\u2500 NLP Pipeline (Stages 1-4) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+    // NLP Pipeline (Stages 1-4)
     const nlp = await runNLPPipeline(lastUserMessage);
 
     const enriched: LeadState = {
