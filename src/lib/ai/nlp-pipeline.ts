@@ -77,9 +77,11 @@ const INTENT_PATTERNS: Record<Intent, RegExp[]> = {
     /\b(monthly|per month|\u0432 \u043c\u0435\u0441\u044f\u0446|por mes)\b/i,
   ],
   info: [
-    /\b(info|information|question|questions|ask|\u0443\u0437\u043d\u0430\u0442\u044c|\u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u044f|\u0441\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c|pregunta|informaci\u00f3n|consulta)\b/i,
+    /\b(info|information|question|questions|ask|pregunta|informaci\u00f3n|consulta)\b/i,
+    /(\u0443\u0437\u043d\u0430\u0442\u044c|\u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u044f|\u0441\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c)/i,
     /\bhow (much|many|does|do|is|are)\b/i,
-    /\b(price|cost|fee|\u0441\u043a\u043e\u043b\u044c\u043a\u043e|\u0446\u0435\u043d\u0430|\u0441\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c|\u0441\u0442\u043e\u0438\u0442|precio|costo|cu\u00e1nto|cuesta)\b/i,
+    /\b(price|cost|fee|precio|costo|cu\u00e1nto|cuesta)\b/i,
+    /(\u0441\u043a\u043e\u043b\u044c\u043a\u043e|\u0446\u0435\u043d\u0430|\u0441\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c|\u0441\u0442\u043e\u0438\u0442)/i,
     /\bwhat (is|are)\b/i,
     /\bavailable\b/i,
   ],
