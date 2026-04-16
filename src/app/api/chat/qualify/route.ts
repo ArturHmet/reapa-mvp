@@ -37,16 +37,16 @@ function getNextQuestion(
 ): { message: string; newState: LeadState; isComplete: boolean } {
   const msg = userMessage.toLowerCase();
   let s = { ...state };
-  const pfx: Record<string, string> = { ru: "Отлично! ", es: "¡Perfecto! ", en: "", other: "" };
+  const pfx: Record<string, string> = { ru: "\u041e\u0442\u043b\u0438\u0447\u043d\u043e! ", es: "\u00a1Perfecto! ", en: "", other: "" };
   const p = pfx[language] ?? "";
 
   switch (state.step) {
     case 0: {
       let intent = "browse", score = SCORING.intent.browse;
-      if (msg.includes("buy")||msg.includes("purchase")||msg.includes("looking for")||msg.includes("купить")||msg.includes("comprar")) { intent="buy"; score=SCORING.intent.buy; }
-      else if (msg.includes("sell")||msg.includes("продать")||msg.includes("vender")) { intent="sell"; score=SCORING.intent.sell; }
+      if (msg.includes("buy")||msg.includes("purchase")||msg.includes("looking for")||msg.includes("\u043a\u0443\u043f\u0438\u0442\u044c")||msg.includes("comprar")) { intent="buy"; score=SCORING.intent.buy; }
+      else if (msg.includes("sell")||msg.includes("\u043f\u0440\u043e\u0434\u0430\u0442\u044c")||msg.includes("vender")) { intent="sell"; score=SCORING.intent.sell; }
       else if (msg.includes("valuation")||msg.includes("value")) { intent="valuation"; score=SCORING.intent.valuation; }
-      else if (msg.includes("rent")||msg.includes("lease")||msg.includes("аренд")||msg.includes("alquil")) { intent="rent"; score=SCORING.intent.rent; }
+      else if (/\brent\b/.test(msg)||msg.includes("lease")||msg.includes("\u0430\u0440\u0435\u043d\u0434")||msg.includes("alquil")) { intent="rent"; score=SCORING.intent.rent; }
       s = { ...s, intent, score: s.score + score, step: 1 };
       const r: Record<string, string> = {
         buy: "Great choice! Malta has some fantastic properties right now. When are you looking to buy?",
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
     const currentState: LeadState = state || { step: 0, score: 0 };
     const lastUserMessage = messages[messages.length - 1]?.content || "";
 
-    // ── NLP Pipeline (Stages 1-4) ──────────────────────────────────────────
+    // \u2500\u2500 NLP Pipeline (Stages 1-4) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
     const nlp = await runNLPPipeline(lastUserMessage);
 
     const enriched: LeadState = {
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       message, state: newState, isComplete, score: newState.score, temperature,
-      nlp: { language: nlp.language, intent: nlp.intent, intentConfidence: nlp.intentConfidence, entities: nlp.entities, leadTemperature: nlp.leadTemperature, overallConfidence: nlp.overallConfidence },
+      nlp: { language: nlp.language, intent: nlp.intent, intentConfidence: nlp.intentConfidence, entityCount: nlp.entityCount, entities: nlp.entities, leadTemperature: nlp.leadTemperature, overallConfidence: nlp.overallConfidence },
       lead: isComplete ? { name: newState.name, phone: newState.phone, email: newState.email, score: newState.score, temperature, intent: newState.intent, budget: newState.budget, location: newState.location, language: nlp.language } : null,
     });
   } catch (error) {
