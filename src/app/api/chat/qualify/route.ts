@@ -1,7 +1,7 @@
+// BUG-039: nodejs runtime -- edge cannot import franc-min (CJS); nodejs resolves process.env at request time
 import { NextRequest, NextResponse } from "next/server";
 import { runNLPPipeline } from "@/lib/ai/nlp-pipeline";
 
-// BUG-039: edge runtime cannot import franc-min (CJS); nodejs resolves process.env at request time
 export const runtime = "nodejs";
 
 const SCORING = {
@@ -65,7 +65,7 @@ function getNextQuestion(
       else if (msg.includes("3-6")||msg.includes("six months")) { timeline="3-6months"; score=SCORING.timeline["3-6months"]; }
       s = { ...s, timeline, score: s.score + score, step: 2 };
       const bQ = s.intent==="sell" ? "What are you expecting to get for the property?" : "What\u2019s your budget range?";
-      return { message: `Got it! ${bQ}\n\nA) Under \u20ac200K\nB) \u20ac200K \u2013 \u20ac400K\nC) \u20ac400K \u2013 \u20ac700K\nD) \u20ac700K \u2013 \u20ac1M\nE) Over \u20ac1M`, newState: s, isComplete: false };
+      return { message: `Got it! ${bQ}\n\nA) Under \u20ac200K\nB) \u20ac200K \u2013 \u20ac400K\nC) \u20ac400K  u2013 \u20ac700K\nD) \u20ac700K \u2013 \u20ac1M\nE) Over \u20ac1M`, newState: s, isComplete: false };
     }
     case 2: {
       let budget = "under200K", score = SCORING.budget["under200K"];
@@ -94,12 +94,12 @@ function getNextQuestion(
     }
     case 5: {
       const phoneMatch = msg.match(/(\+356\s?)?(\d[\d\s]{6,11})/);
-      const emailMatch = msg.match(/[\w.-]+@[\w.-]+\.\w-/);
-      s = { ...s, name: userMessage.split(",")[0].trim(), phone: phoneMatch?[0], email: emailMatch?[0], score: s.score + (phoneMatch||emailMatch ? SCORING.contactProvided : 0), step: 6 };
+      const emailMatch = msg.match(/[\w\x2e-x]+@[\w\x2e-]+\.\w+/);
+      s = { ...s, name: userMessage.split(",")[0].trim(), phone: phoneMatch?.[0], email: emailMatch?.[0], score: s.score + (phoneMatch||emailMatch ? SCORING.contactProvided : 0), step: 6 };
       const temp = getTemperature(s.score);
       const times: Record<string, string> = { hot: "within 15 minutes", warm: "within 2 hours", cold: "within 24 hours", ice: "soon" };
       const name = s.name?.split(" ")[0] || "there";
-      return { message: `Tank you, ${name}! Our specialist will be in touch ${times[temp]}.\n\nI\u2019ve found properties matching your criteria. Our agent will have a full briefing ready for your call.`, newState: s, isComplete: true };
+      return { message: `Thank you, ${name}! Our specialist will be in touch ${times[temp]}.\n\nI\u2019ve found properties matching your criteria. Our agent will have a full briefing ready for your call.`, newState: s, isComplete: true };
     }
     default:
       return { message: "Is there anything else I can help you with?", newState: s, isComplete: true };
@@ -113,7 +113,6 @@ export async function POST(req: NextRequest) {
     const currentState: LeadState = state || { step: 0, score: 0 };
     const lastUserMessage = messages[messages.length - 1]?.content || "";
 
-    // NLP Pipeline (Stages 1-4)
     const nlp = await runNLPPipeline(lastUserMessage);
 
     const enriched: LeadState = {
