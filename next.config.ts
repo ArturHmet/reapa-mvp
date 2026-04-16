@@ -20,6 +20,12 @@ const scriptSrc = process.env.NODE_ENV === "development"
   : "script-src 'self' 'unsafe-inline'";
 
 const nextConfig: NextConfig = {
+  // BUG-037: expose server-side env vars via next.config — insurance for edge route static inlining
+  env: {
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+    GROQ_API_KEY: process.env.GROQ_API_KEY,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  },
   async headers() {
     return [
       {
