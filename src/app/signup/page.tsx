@@ -1,11 +1,9 @@
 "use client";
 import { useState } from "react";
 import { getSupabaseBrowser } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function SignupPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -22,17 +20,30 @@ export default function SignupPage() {
       email, password,
       options: { data: { full_name: name } },
     });
-    if (err) { setError(err.message); setLoading(false); }
-    else { setSuccess(true); setLoading(false); setTimeout(() => router.push("/"), 2000); }
+    setLoading(false);
+    if (err) {
+      setError(err.message);
+    } else {
+      setSuccess(true);
+    }
   }
 
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--bg-base)] px-4">
-        <div className="text-center">
-          <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4"><span className="text-3xl">✓</span></div>
-          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">Account created!</h2>
-          <p className="text-sm text-[var(--text-muted)]">Redirecting to dashboard…</p>
+        <div className="text-center max-w-sm">
+          <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
+            <span className="text-3xl">✉️</span>
+          </div>
+          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">Check your inbox</h2>
+          <p className="text-sm text-[var(--text-muted)] mb-4">
+            We sent a confirmation link to <span className="text-[var(--text-primary)] font-medium">{email}</span>.
+            Click the link in that email to activate your account.
+          </p>
+          <p className="text-xs text-[var(--text-muted)]">
+            Already confirmed?{" "}
+            <Link href="/login" className="text-indigo-400 hover:text-indigo-300 transition-colors">Sign in</Link>
+          </p>
         </div>
       </div>
     );

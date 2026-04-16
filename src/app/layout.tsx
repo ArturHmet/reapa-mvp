@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "@/styles/rtl.css";
-import { Sidebar } from "@/components/Sidebar";
+import { ConditionalSidebar } from "@/components/ConditionalSidebar";
 import { I18nProvider } from "@/lib/i18n/I18nProvider";
 import { REAPACopilot } from "@/components/REAPACopilot";
 import { PostHogProvider } from "@/components/analytics/PostHogProvider";
@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <GA4Script />
         <PostHogProvider />
         <I18nProvider>
-          <Sidebar />
+          <ConditionalSidebar />
           <main className="flex-1 overflow-y-auto p-4 md:p-6 pt-16 md:pt-6">
             {children}
           </main>

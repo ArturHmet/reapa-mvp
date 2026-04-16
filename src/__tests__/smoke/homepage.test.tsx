@@ -2,9 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, act } from "@testing-library/react";
 import React from "react";
 
-// Top-level fetch mock \u2014 must be set before any module is evaluated.
-// The dashboard page calls fetch("/api/dashboard"), fetch("/api/leads"),
-// fetch("/api/tasks") in useEffect. Without this mock they hang in JSDOM.
+// Top-level fetch mock — must be set before any module is evaluated.
 global.fetch = vi.fn().mockResolvedValue({
   ok: true,
   json: () =>
@@ -23,6 +21,22 @@ global.fetch = vi.fn().mockResolvedValue({
       leadSourceData: [],
     }),
 });
+
+// Mock Supabase to prevent real connections timing out in JSDOM
+vi.mock("@/lib/supabase/client", () => ({
+  getSupabaseBrowser: vi.fn(() => ({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: null } }),
+      onAuthStateChange: vi.fn().mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } }),
+    },
+  })),
+  isSupabaseConfigured: vi.fn().mockReturnValue(false),
+}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createAdminClient: vi.fn(),
+  createServerClient: vi.fn(),
+}));
 
 // Mock Next.js navigation
 vi.mock("next/navigation", () => ({
