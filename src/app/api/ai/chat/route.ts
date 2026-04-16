@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
     console.warn("[ai/chat] NLP pipeline failed (non-fatal, continuing without context):", e);
   }
 
-  // ── Gemini 2.0 Flash (primary) ───────────────────────────────────────────────────────────────
+  // ── Gemini 2.5 Flash (primary) -- BUG-039: 2.0 deprecated for new API keys ────────────────────────────────────────
   const geminiKey = process.env.GEMINI_API_KEY;
   if (geminiKey) {
     try {
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
       ];
 
       const geminiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?key=${geminiKey}&alt=sse`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?key=${geminiKey}&alt=sse`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
