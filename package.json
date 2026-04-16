@@ -6,15 +6,22 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@ai-sdk/google": "^1.2.18",
+    "@ai-sdk/groq": "^1.2.9",
+    "ai": "^4.3.15",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "i18next": "^24.2.2",
+    "i18next-browser-languagedetector": "^8.0.2",
     "lucide-react": "^1.8.0",
     "next": "16.2.3",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-i18next": "^15.4.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
