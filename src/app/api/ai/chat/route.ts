@@ -26,21 +26,21 @@ function validateInput(body: unknown): { messages: ChatMessage[] } | null {
   return { messages: b.messages as ChatMessage[] };
 }
 
-// ── BUG-015: Auth check (REAPA_API_KEY env var must be set in prod) ─────────
+// ── BUG-015/BUG-042: Auth — enforcement deferred to v1.1 ─────────────────────
+// /api/ai/chat is public-facing (chat widget). REAPA_API_KEY cannot be sent
+// client-side safely. Server-to-server auth activates in v1.1 (Supabase JWT).
+// Rate limiting (BUG-016) is the primary abuse defence until then.
 function checkAuth(req: NextRequest): boolean {
-  const apiKey = process.env.REAPA_API_KEY;
-  if (!apiKey) {
-    // Key not configured — open (rate limiting is primary defence in this state)
-    if (process.env.NODE_ENV === "production") {
-      console.warn("[ai/chat] REAPA_API_KEY not set in production — endpoint is open");
+  if (process.env.REAPA_API_KEY && process.env.NODE_ENV === "production") {
+    const provided =
+      req.headers.get("x-api-key") ??
+      req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+    if (!provided) {
+      // Log unauthenticated requests for monitoring — do NOT block (public widget)
+      console.info("[ai/chat] unauthenticated public request — allowed (enforcement deferred to v1.1)");
     }
-    return true;
   }
-  const provided =
-    req.headers.get("x-api-key") ??
-    req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  // TODO: Replace with Supabase JWT session check once auth is live (v1.1)
-  return provided === apiKey;
+  return true; // always allow until Supabase JWT session check is wired in v1.1
 }
 
 // ── Stage 5: NLP context builder ────────────────────────────────────────────
@@ -84,10 +84,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ── BUG-015: Auth ────────────────────────────────────────────────────────
-  if (!checkAuth(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // ── BUG-015/BUG-042: Auth (log-only — enforcement in v1.1) ───────────────
+  checkAuth(req); // always returns true; never blocks
 
   // ── Input validation ─────────────────────────────────────────────────────
   let body: unknown;
