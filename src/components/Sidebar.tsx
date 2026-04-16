@@ -23,7 +23,12 @@ export function Sidebar() {
     { href: "/analytics", label: t("nav.analytics"), icon: BarChart3 },
   ];
 
-  useEffect(() => { setOpen(false); }, [pathname]);
+  // Defer setState to avoid synchronous setState in useEffect (React Compiler compat)
+  useEffect(() => {
+    const id = setTimeout(() => setOpen(false), 0);
+    return () => clearTimeout(id);
+  }, [pathname]);
+
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
     window.addEventListener("keydown", h);

@@ -26,7 +26,7 @@ describe("Auth middleware smoke test", () => {
     try {
       middlewareModule = await import("@/middleware");
     } catch (e) {
-      // Module may not exist yet (pre-PR-#1 merge) — that is expected
+      // Module may not exist yet (pre-PR-#1 merge) \u2014 that is expected
       expect(e).toBeTruthy();
       return;
     }
@@ -34,21 +34,22 @@ describe("Auth middleware smoke test", () => {
   });
 
   it("public routes are accessible without auth", async () => {
-    const { NextRequest, NextResponse } = await import("next/server");
-    
+    const { NextRequest } = await import("next/server");
+
     // Public route: /api/chat/qualify should pass through
     const req = new NextRequest("http://localhost:3000/api/chat/qualify");
-    
+
     // If middleware exists, it should allow public API routes
     try {
       const { middleware } = await import("@/middleware");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await middleware(req as any);
       // Should not redirect to login for public routes
       if (result && typeof result === "object" && "type" in result) {
         expect((result as { type: string }).type).not.toBe("redirect");
       }
     } catch {
-      // Middleware not yet implemented — skip
+      // Middleware not yet implemented \u2014 skip
       expect(true).toBe(true);
     }
   });
