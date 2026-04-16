@@ -27,6 +27,8 @@ export async function generateMetadata({
       publishedTime: post.date,
     },
     keywords: [post.targetKeyword],
+    robots: { index: true, follow: true },
+    twitter: { card: "summary_large_image", title: post.metaTitle },
   };
 }
 
@@ -90,17 +92,8 @@ export default async function BlogPostPage({
           href="/waitlist"
           className="inline-flex items-center gap-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
         >
-          Join waitlist <ExternalLink size={13} />
-        </Link>
-      </div>
-
-      <div className="border-t border-[var(--border)] pt-6">
-        <Link
-          href="/blog"
-          className="inline-flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
-        >
-          <ArrowLeft size={14} />
-          Back to all articles
+          Join the waitlist \u2192
+          <ExternalLink size={13} />
         </Link>
       </div>
     </div>
