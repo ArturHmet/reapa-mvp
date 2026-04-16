@@ -1,17 +1,34 @@
 "use client";
+import { useState, useEffect } from "react";
 import { Card, Badge, StatCard, ProgressBar } from "@/components/UI";
-import { dashboardStats, tasks, leads, clients, funnelData, leadSourceData } from "@/lib/data";
+import { dashboardStats as mockStats, tasks as mockTasks, leads as mockLeads, clients as mockClients, funnelData as mockFunnel, leadSourceData as mockSourceData } from "@/lib/data";
 import { formatCurrency } from "@/lib/utils";
 import { Users, UserPlus, Eye, CheckSquare, AlertTriangle, TrendingUp, Clock, Target, Phone, MapPin, FileText, Shield, Sparkles } from "lucide-react";
 
 export default function Dashboard() {
+  const [stats, setStats] = useState(mockStats);
+  const [funnelData, setFunnelData] = useState(mockFunnel);
+  const [leadSourceData, setLeadSourceData] = useState(mockSourceData);
+  const [leads, setLeads] = useState(mockLeads);
+  const [tasks, setTasks] = useState(mockTasks);
+
+  useEffect(() => {
+    fetch("/api/dashboard").then(r => r.json()).then(d => {
+      if (!d) return;
+      setStats(d);
+      if (d.funnelData) setFunnelData(d.funnelData);
+      if (d.leadSourceData) setLeadSourceData(d.leadSourceData);
+    }).catch(() => {});
+    fetch("/api/leads").then(r => r.json()).then(setLeads).catch(() => {});
+    fetch("/api/tasks").then(r => r.json()).then(setTasks).catch(() => {});
+  }, []);
+
   const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const urgentTasks = tasks.filter(t => t.priority === 'urgent' || t.status === 'overdue');
   const hotLeads = leads.filter(l => l.score === 'hot');
 
   return (
     <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
-      {/* Morning Briefing */}
       <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border border-indigo-500/20 rounded-xl p-4 md:p-6">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div>
@@ -23,7 +40,7 @@ export default function Dashboard() {
             <p className="text-sm text-[var(--text-muted)]">{today}</p>
           </div>
           <div className="sm:text-right">
-            <div className="text-xl md:text-2xl font-bold text-indigo-400">{dashboardStats.avgResponseTime}</div>
+            <div className="text-xl md:text-2xl font-bold text-indigo-400">{stats.avgResponseTime}</div>
             <div className="text-[10px] text-[var(--text-muted)]">Avg. response time</div>
           </div>
         </div>
@@ -38,21 +55,17 @@ export default function Dashboard() {
           </div>
           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3">
             <div className="text-xs text-emerald-400 font-medium">✅ Pipeline</div>
-            <div className="text-sm mt-1">{formatCurrency(dashboardStats.revenue)} revenue this month</div>
+            <div className="text-sm mt-1">{formatCurrency(stats.revenue)} revenue this month</div>
           </div>
         </div>
       </div>
-
-      {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <StatCard label="Total Leads" value={dashboardStats.totalLeads} sub={`${dashboardStats.hotLeads} hot`} icon={<UserPlus size={20} />} />
-        <StatCard label="Active Clients" value={dashboardStats.activeClients} sub={`${dashboardStats.viewingsToday} viewings today`} icon={<Users size={20} />} />
-        <StatCard label="Pending Tasks" value={dashboardStats.pendingTasks} sub={`${dashboardStats.overdueTasks} overdue`} icon={<CheckSquare size={20} />} />
-        <StatCard label="Conversion Rate" value={`${dashboardStats.conversionRate}%`} sub="Leads → Deals" icon={<Target size={20} />} />
+        <StatCard label="Total Leads" value={stats.totalLeads} sub={`${stats.hotLeads} hot`} icon={<UserPlus size={20} />} />
+        <StatCard label="Active Clients" value={stats.activeClients} sub={`${stats.viewingsToday} viewings today`} icon={<Users size={20} />} />
+        <StatCard label="Pending Tasks" value={stats.pendingTasks} sub={`${stats.overdueTasks} overdue`} icon={<CheckSquare size={20} />} />
+        <StatCard label="Conversion Rate" value={`${stats.conversionRate}%`} sub="Leads → Deals" icon={<Target size={20} />} />
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Today's Tasks */}
         <Card className="lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-sm">Today&apos;s Priority Tasks</h2>
@@ -61,19 +74,13 @@ export default function Dashboard() {
           <div className="space-y-2">
             {tasks.filter(t => t.status !== 'done').slice(0, 7).map(task => (
               <div key={task.id} className="flex items-center gap-2 md:gap-3 p-2.5 md:p-3 rounded-lg bg-[var(--bg)] hover:bg-[var(--bg-card-hover)] transition-colors group">
-                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                  task.priority === 'urgent' ? 'bg-red-500' :
-                  task.priority === 'high' ? 'bg-orange-500' :
-                  task.priority === 'medium' ? 'bg-blue-500' : 'bg-gray-500'
-                }`} />
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${task.priority === 'urgent' ? 'bg-red-500' : task.priority === 'high' ? 'bg-orange-500' : task.priority === 'medium' ? 'bg-blue-500' : 'bg-gray-500'}`} />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium truncate">{task.title}</div>
                   <div className="text-[11px] text-[var(--text-muted)] truncate hidden sm:block">{task.description}</div>
                 </div>
                 <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
-                  {task.autoGenerated && (
-                    <span className="text-[10px] text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded hidden sm:inline">AI</span>
-                  )}
+                  {task.autoGenerated && <span className="text-[10px] text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded hidden sm:inline">AI</span>}
                   <CategoryIcon category={task.category} />
                   <span className="text-[11px] text-[var(--text-muted)] hidden sm:inline">{task.dueTime}</span>
                   {task.status === 'overdue' && <Badge variant="red">Overdue</Badge>}
@@ -82,12 +89,10 @@ export default function Dashboard() {
             ))}
           </div>
         </Card>
-
-        {/* Sales Funnel */}
         <Card>
           <h2 className="font-semibold text-sm mb-4">Sales Funnel</h2>
           <div className="space-y-3">
-            {funnelData.map((stage, i) => (
+            {funnelData.map((stage) => (
               <div key={stage.stage}>
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-[var(--text-muted)]">{stage.stage}</span>
@@ -100,21 +105,19 @@ export default function Dashboard() {
           <div className="mt-4 pt-4 border-t border-[var(--border)]">
             <div className="text-xs text-[var(--text-muted)]">Conversion Rate</div>
             <div className="text-lg font-bold text-emerald-400">
-              {((funnelData[4].count / funnelData[0].count) * 100).toFixed(1)}%
+              {funnelData[0].count > 0 ? ((funnelData[4].count / funnelData[0].count) * 100).toFixed(1) : '0.0'}%
             </div>
           </div>
         </Card>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Hot Leads */}
         <Card>
           <h2 className="font-semibold text-sm mb-4">🔥 Hot Leads — Call Now</h2>
           <div className="space-y-3">
             {hotLeads.map(lead => (
               <div key={lead.id} className="flex items-center gap-3 p-3 rounded-lg bg-[var(--bg)]">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-                  {lead.name.split(' ').map(n => n[0]).join('')}
+                  {lead.name.split(' ').map((n: string) => n[0]).join('')}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium truncate">{lead.name}</div>
@@ -131,8 +134,6 @@ export default function Dashboard() {
             ))}
           </div>
         </Card>
-
-        {/* Lead Sources */}
         <Card>
           <h2 className="font-semibold text-sm mb-4">Lead Sources</h2>
           <div className="space-y-3">
@@ -161,5 +162,5 @@ function CategoryIcon({ category }: { category: string }) {
     compliance: <Shield size={14} className="text-red-400" />,
     other: <CheckSquare size={14} className="text-gray-400" />,
   };
-  return icons[category] || icons.other;
+  return <>{icons[category] || icons.other}</>;
 }
