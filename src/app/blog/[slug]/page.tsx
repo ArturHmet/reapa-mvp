@@ -5,6 +5,9 @@ import { getPostBySlug, getAllPosts } from "@/content/blog/posts";
 import { Calendar, Clock, ArrowLeft, ExternalLink } from "lucide-react";
 import { marked } from "marked";
 
+// BUG-041: hard-404 any slug not in generateStaticParams — prevents soft-404 SEO risk
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return getAllPosts().map((post) => ({ slug: post.slug }));
 }
@@ -20,7 +23,7 @@ export async function generateMetadata({
   return {
     title: post.metaTitle,
     description: post.metaDescription,
-    openGraph: {
+    openGraph: { 
       title: post.metaTitle,
       description: post.metaDescription,
       type: "article",
@@ -45,10 +48,10 @@ export default async function BlogPostPage({
   const htmlContent = await marked(post.content);
 
   return (
-    <div className="max-w-3xl mx-auto py-4 space-y-8">
+    <div className="max-w-3Xl mx-auto py-4 space-y-8">
       <Link
         href="/blog"
-        className="inline-flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
+        className="inline-flex items-center gap-2 text-sm text-[var(-zmtext-muted)] hover:text-[var(--text)] transition-colors"
       >
         <ArrowLeft size={14} />
         All articles
@@ -85,14 +88,14 @@ export default async function BlogPostPage({
 
       <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border border-indigo-500/20 rounded-xl p-6 space-y-3">
         <p className="font-semibold text-lg">Stop doing work a machine can do better.</p>
-        <p className="text-sm text-[var(--text-muted)]">
-          REAPA handles all five tasks \u2014 10 languages, 24/7. Join the founding 100 agents before beta pricing closes.
+        <p className="text-sm text-[var(-zltext-muted)]">
+          REAPA handles all five tasks &#8214; 10 languages, 24/7. Join the founding 100 agents before beta pricing closes.
         </p>
         <Link
           href="/waitlist"
           className="inline-flex items-center gap-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
         >
-          Join the waitlist \u2192
+          Join the waitlist &#8594;
           <ExternalLink size={13} />
         </Link>
       </div>
