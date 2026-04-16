@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { REAPA_SYSTEM_PROMPT } from "@/prompts";
 import { rateLimit, getClientId } from "@/lib/rate-limit";
 import { runNLPPipeline } from "@/lib/ai/nlp-pipeline";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { streamText } from "ai";
 
-// Fix 1: nodejs runtime — process.env resolved at runtime, not build time
+// BUG-039/BUG-037: nodejs runtime — process.env resolved at runtime
 export const runtime = "nodejs";
 
-// ── Input validation ────────────────────────────────────────────────────────────────────────────
+// ── Input validation ────────────────────────────────────────────────────────
 interface ChatMessage { role: "user" | "assistant"; content: string; }
 
 function validateInput(body: unknown): { messages: ChatMessage[] } | null {
@@ -24,38 +26,38 @@ function validateInput(body: unknown): { messages: ChatMessage[] } | null {
   return { messages: b.messages as ChatMessage[] };
 }
 
-// ── Auth check ──────────────────────────────────────────────────────────────────────────────────
+// ── BUG-015: Auth check (REAPA_API_KEY env var must be set in prod) ─────────
 function checkAuth(req: NextRequest): boolean {
   const apiKey = process.env.REAPA_API_KEY;
-  if (!apiKey) return true; // No key configured – open in dev (rate limiting still applies)
-  const provided = req.headers.get("x-api-key") ?? req.headers.get("authorization")?.replace("Bearer ", "");
-  // TODO: Replace with Supabase session check once auth is live
+  if (!apiKey) {
+    // Key not configured — open (rate limiting is primary defence in this state)
+    if (process.env.NODE_ENV === "production") {
+      console.warn("[ai/chat] REAPA_API_KEY not set in production — endpoint is open");
+    }
+    return true;
+  }
+  const provided =
+    req.headers.get("x-api-key") ??
+    req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+  // TODO: Replace with Supabase JWT session check once auth is live (v1.1)
   return provided === apiKey;
 }
 
-// ── Stage 5: build NLP context string for system prompt injection ───────────────────────────────
+// ── Stage 5: NLP context builder ────────────────────────────────────────────
 interface NLPEntity { value: string; }
 interface NLPResult {
-  language: string;
-  intent: string;
-  intentConfidence: number;
+  language: string; intent: string; intentConfidence: number;
   entities: {
-    budget?: NLPEntity;
-    location?: NLPEntity;
-    timeline?: NLPEntity;
-    bedrooms?: NLPEntity;
-    propertyType?: NLPEntity;
+    budget?: NLPEntity; location?: NLPEntity; timeline?: NLPEntity;
+    bedrooms?: NLPEntity; propertyType?: NLPEntity;
   };
-  leadTemperature: string;
-  overallConfidence: number;
+  leadTemperature: string; overallConfidence: number;
 }
 
 function buildNLPContext(nlp: NLPResult): string {
   const ctx: Record<string, string | number> = {
-    language: nlp.language,
-    intent: nlp.intent,
-    confidence: nlp.intentConfidence,
-    temperature: nlp.leadTemperature,
+    language: nlp.language, intent: nlp.intent,
+    confidence: nlp.intentConfidence, temperature: nlp.leadTemperature,
   };
   if (nlp.entities.budget?.value)       ctx.budget       = nlp.entities.budget.value;
   if (nlp.entities.location?.value)     ctx.location     = nlp.entities.location.value;
@@ -66,9 +68,9 @@ function buildNLPContext(nlp: NLPResult): string {
 }
 
 export async function POST(req: NextRequest) {
-  // ── Rate limiting: 20 req/min per IP ────────────────────────────────────────────────────────
+  // ── BUG-016: Distributed rate limiting via Supabase RPC ─────────────────
   const clientId = getClientId(req);
-  const rl = rateLimit(clientId, { maxRequests: 20, windowMs: 60_000 });
+  const rl = await rateLimit(clientId, { maxRequests: 20, windowMs: 60_000 });
   if (!rl.allowed) {
     return NextResponse.json(
       { error: "Too many requests", retryAfter: Math.ceil(rl.retryAfterMs / 1000) },
@@ -76,18 +78,18 @@ export async function POST(req: NextRequest) {
         status: 429,
         headers: {
           "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)),
-          "X-RateLimit-Remaining": String(rl.remaining),
+          "X-RateLimit-Remaining": "0",
         },
       }
     );
   }
 
-  // ── Auth ─────────────────────────────────────────────────────────────────────────────────────
+  // ── BUG-015: Auth ────────────────────────────────────────────────────────
   if (!checkAuth(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // ── Input validation ─────────────────────────────────────────────────────────────────────────
+  // ── Input validation ─────────────────────────────────────────────────────
   let body: unknown;
   try { body = await req.json(); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
@@ -95,7 +97,7 @@ export async function POST(req: NextRequest) {
   const validated = validateInput(body);
   if (!validated) {
     return NextResponse.json(
-      { error: "Invalid input: messages must be an array of {role, content} objects (max 50, max 4000 chars each)" },
+      { error: "Invalid input: messages must be an array of {role, content} (max 50, max 4000 chars each)" },
       { status: 400 }
     );
   }
@@ -103,65 +105,45 @@ export async function POST(req: NextRequest) {
   const { messages } = validated;
   const lastUserMessage = messages.findLast((m) => m.role === "user")?.content ?? "";
 
-  // ── Stage 5: NLP pipeline → inject enriched context into system prompt ───────────────────────
+  // ── Stage 5: NLP pipeline → system prompt enrichment ────────────────────
   let systemPrompt = REAPA_SYSTEM_PROMPT();
   try {
     const nlp = await runNLPPipeline(lastUserMessage);
-    const nlpContext = buildNLPContext(nlp as NLPResult);
-    systemPrompt = `${systemPrompt}\n\n${nlpContext}`;
+    systemPrompt = `${systemPrompt}\n\n${buildNLPContext(nlp as NLPResult)}`;
   } catch (e) {
-    console.warn("[ai/chat] NLP pipeline failed (non-fatal, continuing without context):", e);
+    console.warn("[ai/chat] NLP pipeline failed (non-fatal):", e);
   }
 
-  // ── Gemini 2.5 Flash (primary) -- BUG-039: 2.0 deprecated for new API keys ────────────────────────────────────────
+  const rateLimitHeaders = { "X-RateLimit-Remaining": String(rl.remaining) };
+
+  // ── BUG-018: Gemini via @ai-sdk/google (replaces brittle SSE parser) ─────
   const geminiKey = process.env.GEMINI_API_KEY;
   if (geminiKey) {
     try {
-      const contents = [
-        { role: "user" as const, parts: [{ text: systemPrompt }] },
-        { role: "model" as const, parts: [{ text: "Understood. I am REAPA, ready to assist." }] },
-        ...messages.map((m) => ({
-          role: m.role === "user" ? ("user" as const) : ("model" as const),
-          parts: [{ text: m.content }],
-        })),
-      ];
+      const googleAI = createGoogleGenerativeAI({ apiKey: geminiKey });
+      // BUG-019: maxTokens raised 1024 → 4096 (supports listing copy, compliance docs)
+      const result = streamText({
+        model: googleAI("gemini-2.5-flash"),
+        system: systemPrompt,
+        messages: messages.map((m) => ({ role: m.role, content: m.content })),
+        maxTokens: 4096,
+        temperature: 0.7,
+      });
 
-      const geminiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?key=${geminiKey}&alt=sse`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents,
-            generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
-          }),
-        }
-      );
-
-      if (!geminiRes.ok || !geminiRes.body) throw new Error(`Gemini ${geminiRes.status}`);
-
-      // Stream SSE → transform to plain text stream
+      // Transform SDK textStream → existing data: {"text":"..."} SSE format
       const encoder = new TextEncoder();
       const stream = new ReadableStream({
         async start(controller) {
-          const reader = geminiRes.body!.getReader();
-          const decoder = new TextDecoder();
           try {
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) { controller.close(); break; }
-              const chunk = decoder.decode(value);
-              for (const line of chunk.split("\n")) {
-                if (line.startsWith("data: ")) {
-                  try {
-                    const json = JSON.parse(line.slice(6));
-                    const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (text) controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
-                  } catch { /* skip malformed SSE */ }
-                }
-              }
+            for await (const chunk of result.textStream) {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ text: chunk })}\n\n`)
+              );
             }
-          } catch (e) { controller.error(e); }
+            controller.close();
+          } catch (e) {
+            controller.error(e);
+          }
         },
       });
 
@@ -170,7 +152,7 @@ export async function POST(req: NextRequest) {
           "Content-Type": "text/event-stream",
           "Cache-Control": "no-cache",
           Connection: "keep-alive",
-          "X-RateLimit-Remaining": String(rl.remaining),
+          ...rateLimitHeaders,
         },
       });
     } catch (e) {
@@ -178,7 +160,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── Groq Llama fallback ──────────────────────────────────────────────────────────────────────
+  // ── Groq Llama fallback ──────────────────────────────────────────────────
   const groqKey = process.env.GROQ_API_KEY;
   if (groqKey) {
     try {
@@ -188,7 +170,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           model: "llama-3.1-70b-versatile",
           messages: [{ role: "system", content: systemPrompt }, ...messages],
-          max_tokens: 1024,
+          max_tokens: 4096, // BUG-019
           temperature: 0.7,
           stream: true,
         }),
@@ -198,7 +180,7 @@ export async function POST(req: NextRequest) {
         headers: {
           "Content-Type": "text/event-stream",
           "Cache-Control": "no-cache",
-          "X-RateLimit-Remaining": String(rl.remaining),
+          ...rateLimitHeaders,
         },
       });
     } catch (e) {
@@ -206,5 +188,8 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ error: "No AI provider configured. Set GEMINI_API_KEY or GROQ_API_KEY." }, { status: 503 });
+  return NextResponse.json(
+    { error: "No AI provider configured. Set GEMINI_API_KEY or GROQ_API_KEY." },
+    { status: 503 }
+  );
 }
