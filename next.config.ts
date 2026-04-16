@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 const ALLOWED_ORIGINS = [
   "https://reapa-mvp.vercel.app",
   "https://reapa.ai",
-  // Add production domains here as needed
 ];
 
 const DEV_ORIGINS = [
@@ -14,6 +13,11 @@ const DEV_ORIGINS = [
 const allowedOrigins = process.env.NODE_ENV === "development"
   ? [...ALLOWED_ORIGINS, ...DEV_ORIGINS]
   : ALLOWED_ORIGINS;
+
+// BUG-008: unsafe-eval is ONLY needed for Next.js HMR in development
+const scriptSrc = process.env.NODE_ENV === "development"
+  ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+  : "script-src 'self' 'unsafe-inline'";
 
 const nextConfig: NextConfig = {
   async headers() {
@@ -35,18 +39,9 @@ const nextConfig: NextConfig = {
             value: "Content-Type, Authorization",
           },
           // BUG-002: Security headers
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
@@ -58,13 +53,13 @@ const nextConfig: NextConfig = {
           {
             key: "Content-Security-Policy",
             value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-eval needed for Next.js HMR in dev
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https:",
-              "connect-src 'self' https://*.supabase.co https://api.notion.com https://api.openai.com https://api.groq.com",
-              "frame-ancestors 'none'",
+              "default-src \'self\'",
+              scriptSrc,  // BUG-008: no unsafe-eval in prod
+              "style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com",
+              "font-src \'self\' https://fonts.gstatic.com",
+              "img-src \'self\' data: blob: https:",
+              "connect-src \'self\' https://*.supabase.co https://api.notion.com https://api.openai.com https://api.groq.com https://generativelanguage.googleapis.com https://eu.posthog.com",
+              "frame-ancestors \'none\'",
             ].join("; "),
           },
         ],
