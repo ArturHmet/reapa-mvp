@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "leads": "Leads",
+    "clients": "Clients",
+    "tasks": "Tasks",
+    "analytics": "Analytics"
+  },
+  "app": {
+    "name": "REAPA",
+    "tagline": "AI Real Estate Assistant",
+    "office": "Malta Office"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "search": "Search",
+    "filter": "Filter",
+    "add": "Add",
+    "view": "View",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "confirm": "Confirm"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "completed": "Completed",
+    "overdue": "Overdue"
+  },
+  "copilot": {
+    "title": "REAPA Copilot",
+    "subtitle": "AI assistant · Always on",
+    "thinking": "Thinking…",
+    "placeholder": "Ask about leads, listings, tasks…",
+    "greeting": "Hi! I'm your REAPA Copilot",
+    "greetingSubtitle": "Ask me anything about your pipeline, leads, or listings.",
+    "open": "Open REAPA Copilot"
+  }
+}

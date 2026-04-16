@@ -1,0 +1,41 @@
+{
+  "lead": {
+    "hot": "Hot",
+    "warm": "Warm",
+    "cold": "Cold",
+    "ice": "Ice",
+    "new": "New Inquiry"
+  },
+  "property": {
+    "apartment": "Apartment",
+    "villa": "Villa",
+    "penthouse": "Penthouse",
+    "townhouse": "Townhouse",
+    "maisonette": "Maisonette",
+    "farmhouse": "Farmhouse",
+    "commercial": "Commercial",
+    "office": "Office"
+  },
+  "transaction": {
+    "buy": "Buy",
+    "rent": "Rent",
+    "sell": "Sell",
+    "lease": "Lease"
+  },
+  "compliance": {
+    "aml": "AML Check",
+    "kyc": "KYC",
+    "konvenju": "Promise of Sale (Konvenju)",
+    "epc": "EPC Certificate",
+    "fiau": "FIAU Report"
+  },
+  "pipeline": {
+    "inquiry": "Inquiry",
+    "qualified": "Qualified",
+    "viewing": "Viewing Scheduled",
+    "negotiating": "Negotiating",
+    "offered": "Offer Made",
+    "under_contract": "Under Contract",
+    "closed": "Closed"
+  }
+}

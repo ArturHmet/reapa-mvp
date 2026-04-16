@@ -1,0 +1,41 @@
+{
+  "lead": {
+    "hot": "Caliente",
+    "warm": "Tibio",
+    "cold": "Frío",
+    "ice": "Helado",
+    "new": "Nueva consulta"
+  },
+  "property": {
+    "apartment": "Apartamento",
+    "villa": "Villa",
+    "penthouse": "Ático",
+    "townhouse": "Casa adosada",
+    "maisonette": "Dúplex",
+    "farmhouse": "Casa rural",
+    "commercial": "Comercial",
+    "office": "Oficina"
+  },
+  "transaction": {
+    "buy": "Comprar",
+    "rent": "Alquilar",
+    "sell": "Vender",
+    "lease": "Arrendar"
+  },
+  "compliance": {
+    "aml": "Verificación AML",
+    "kyc": "KYC",
+    "konvenju": "Promesa de venta (Konvenju)",
+    "epc": "Certificado EPC",
+    "fiau": "Informe FIAU"
+  },
+  "pipeline": {
+    "inquiry": "Consulta",
+    "qualified": "Calificado",
+    "viewing": "Visita programada",
+    "negotiating": "Negociando",
+    "offered": "Oferta realizada",
+    "under_contract": "Bajo contrato",
+    "closed": "Cerrada"
+  }
+}

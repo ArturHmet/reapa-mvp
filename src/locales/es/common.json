@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "dashboard": "Panel",
+    "leads": "Prospectos",
+    "clients": "Clientes",
+    "tasks": "Tareas",
+    "analytics": "Analítica"
+  },
+  "app": {
+    "name": "REAPA",
+    "tagline": "Asistente IA Inmobiliario",
+    "office": "Oficina Malta"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "loading": "Cargando…",
+    "error": "Algo salió mal",
+    "retry": "Intentar de nuevo",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "add": "Agregar",
+    "view": "Ver",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "submit": "Enviar",
+    "confirm": "Confirmar"
+  },
+  "status": {
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "pending": "Pendiente",
+    "completed": "Completado",
+    "overdue": "Vencido"
+  },
+  "copilot": {
+    "title": "REAPA Copilot",
+    "subtitle": "Asistente IA · Siempre activo",
+    "thinking": "Pensando…",
+    "placeholder": "Pregunta sobre prospectos, propiedades, tareas…",
+    "greeting": "¡Hola! Soy tu REAPA Copilot",
+    "greetingSubtitle": "Pregúntame sobre tu cartera, prospectos o propiedades.",
+    "open": "Abrir REAPA Copilot"
+  }
+}

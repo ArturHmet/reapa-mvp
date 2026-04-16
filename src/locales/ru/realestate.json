@@ -1,0 +1,41 @@
+{
+  "lead": {
+    "hot": "Горячий",
+    "warm": "Тёплый",
+    "cold": "Холодный",
+    "ice": "Ледяной",
+    "new": "Новый запрос"
+  },
+  "property": {
+    "apartment": "Квартира",
+    "villa": "Вилла",
+    "penthouse": "Пентхаус",
+    "townhouse": "Таунхаус",
+    "maisonette": "Мезонет",
+    "farmhouse": "Фермерский дом",
+    "commercial": "Коммерческая",
+    "office": "Офис"
+  },
+  "transaction": {
+    "buy": "Купить",
+    "rent": "Арендовать",
+    "sell": "Продать",
+    "lease": "Аренда"
+  },
+  "compliance": {
+    "aml": "Проверка AML",
+    "kyc": "KYC",
+    "konvenju": "Предварительный договор (Konvenju)",
+    "epc": "Сертификат EPC",
+    "fiau": "Отчёт FIAU"
+  },
+  "pipeline": {
+    "inquiry": "Запрос",
+    "qualified": "Квалифицирован",
+    "viewing": "Просмотр запланирован",
+    "negotiating": "Переговоры",
+    "offered": "Предложение сделано",
+    "under_contract": "Под контрактом",
+    "closed": "Закрыта"
+  }
+}

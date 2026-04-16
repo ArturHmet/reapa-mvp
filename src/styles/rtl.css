@@ -1,0 +1,12 @@
+/* RTL Foundation — REAPA
+ * Applied when <html dir="rtl"> — currently for Arabic (future).
+ * i18n/config.ts sets dir="rtl" when language is Arabic.
+ */
+[dir="rtl"] .sidebar-nav { padding-right: 0.75rem; padding-left: 0; }
+[dir="rtl"] .language-switcher { left: 0; right: auto; }
+[dir="rtl"] .flex-row { flex-direction: row-reverse; }
+[dir="rtl"] .ml-auto { margin-right: auto; margin-left: 0; }
+[dir="rtl"] .mr-auto { margin-left: auto; margin-right: 0; }
+[dir="rtl"] .text-left { text-align: right; }
+[dir="rtl"] .text-right { text-align: left; }
+[dir="rtl"] input, [dir="rtl"] textarea { direction: rtl; }

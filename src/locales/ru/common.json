@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "dashboard": "Главная",
+    "leads": "Лиды",
+    "clients": "Клиенты",
+    "tasks": "Задачи",
+    "analytics": "Аналитика"
+  },
+  "app": {
+    "name": "REAPA",
+    "tagline": "ИИ-ассистент по недвижимости",
+    "office": "Офис Мальта"
+  },
+  "common": {
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Изменить",
+    "close": "Закрыть",
+    "loading": "Загрузка…",
+    "error": "Что-то пошло не так",
+    "retry": "Попробовать снова",
+    "search": "Поиск",
+    "filter": "Фильтр",
+    "add": "Добавить",
+    "view": "Просмотреть",
+    "back": "Назад",
+    "next": "Далее",
+    "submit": "Отправить",
+    "confirm": "Подтвердить"
+  },
+  "status": {
+    "active": "Активный",
+    "inactive": "Неактивный",
+    "pending": "В ожидании",
+    "completed": "Завершён",
+    "overdue": "Просрочен"
+  },
+  "copilot": {
+    "title": "REAPA Copilot",
+    "subtitle": "ИИ-ассистент · Всегда онлайн",
+    "thinking": "Думаю…",
+    "placeholder": "Спросите о лидах, объектах, задачах…",
+    "greeting": "Привет! Я ваш REAPA Copilot",
+    "greetingSubtitle": "Задайте любой вопрос о вашей воронке, лидах или объектах.",
+    "open": "Открыть REAPA Copilot"
+  }
+}
