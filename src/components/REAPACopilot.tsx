@@ -58,9 +58,13 @@ export function REAPACopilot() {
       {/*
        * MOB-001: semi-transparent backdrop shown only on narrow viewports (≤375px).
        * Tapping outside the bottom sheet dismisses the Copilot.
+       *
+       * Tailwind v4 note: max-[376px]: generates
+       *   @media not all and (min-width: 376px)  ⇒  width ≤ 375px
+       * Using 376 (not 375) is required to capture iPhone SE (exactly 375px).
        */}
       <div
-        className="fixed inset-0 z-40 bg-black/50 hidden max-[375px]:block"
+        className="fixed inset-0 z-40 bg-black/50 hidden max-[376px]:block"
         onClick={() => setIsOpen(false)}
         aria-hidden="true"
       />
@@ -70,22 +74,19 @@ export function REAPACopilot() {
        *   ≤375px → bottom sheet: 100vw × 85svh, anchored to bottom edge,
        *            rounded top corners only, no minimize (swipe-down or ✕ to close)
        *   ≥376px → original floating panel: bottom-6 right-6, w-96 h-[560px]
-       *
-       * MOB-002: panel itself also respects safe-area-inset-bottom on narrow
-       *          viewports (handled via the form padding below).
        */}
       <div
         className={[
           // base
           "fixed z-50 flex flex-col bg-gray-900 border border-gray-700 shadow-2xl transition-all",
-          // ≤375px: bottom sheet
-          "max-[375px]:bottom-0 max-[375px]:left-0 max-[375px]:w-full max-[375px]:rounded-t-2xl max-[375px]:rounded-b-none max-[375px]:border-x-0 max-[375px]:border-b-0",
+          // ≤375px: bottom sheet (max-[376px]: = @media not all and (min-width:376px) = width≤375px)
+          "max-[376px]:bottom-0 max-[376px]:left-0 max-[376px]:w-full max-[376px]:rounded-t-2xl max-[376px]:rounded-b-none max-[376px]:border-x-0 max-[376px]:border-b-0",
           // ≥376px: floating panel
           "min-[376px]:right-6 min-[376px]:rounded-2xl",
           // height / width variants per state
           isMinimized
             ? "min-[376px]:bottom-6 min-[376px]:w-72 h-14"
-            : "max-[375px]:h-[85svh] min-[376px]:bottom-6 min-[376px]:w-96 min-[376px]:h-[560px]",
+            : "max-[376px]:h-[85svh] min-[376px]:bottom-6 min-[376px]:w-96 min-[376px]:h-[560px]",
         ].join(" ")}
       >
         {/* Header */}
