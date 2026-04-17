@@ -102,8 +102,12 @@ describe("rateLimit — Supabase RPC path (BUG-T005 extension: lines 14-17, 43-6
     vi.restoreAllMocks();
   });
 
+  // NOTE: vi.mock() is hoisted at compile-time — can't vary per-test inside a describe block.
+  // Use vi.doMock() here: it runs inline (not hoisted), respects vi.resetModules() and
+  // allows each test to supply its own factory. Pair with dynamic `await import()` after doMock.
+
   it("returns allowed=true when Supabase RPC count is under limit", async () => {
-    vi.mock("@supabase/supabase-js", () => ({
+    vi.doMock("@supabase/supabase-js", () => ({
       createClient: () => ({
         rpc: vi.fn().mockResolvedValue({ data: 1, error: null }),
       }),
@@ -114,7 +118,8 @@ describe("rateLimit — Supabase RPC path (BUG-T005 extension: lines 14-17, 43-6
   });
 
   it("returns allowed=false when Supabase RPC count exceeds limit", async () => {
-    vi.mock("@supabase/supabase-js", () => ({
+    // data is a plain number scalar (typeof data === 'number' check in rate-limit.ts line ~47)
+    vi.doMock("@supabase/supabase-js", () => ({
       createClient: () => ({
         rpc: vi.fn().mockResolvedValue({ data: 25, error: null }),
       }),
@@ -127,7 +132,7 @@ describe("rateLimit — Supabase RPC path (BUG-T005 extension: lines 14-17, 43-6
   });
 
   it("falls back to in-memory when Supabase RPC returns error", async () => {
-    vi.mock("@supabase/supabase-js", () => ({
+    vi.doMock("@supabase/supabase-js", () => ({
       createClient: () => ({
         rpc: vi.fn().mockResolvedValue({ data: null, error: new Error("RPC failed") }),
       }),
@@ -139,7 +144,7 @@ describe("rateLimit — Supabase RPC path (BUG-T005 extension: lines 14-17, 43-6
   });
 
   it("falls back to in-memory when createClient throws", async () => {
-    vi.mock("@supabase/supabase-js", () => ({
+    vi.doMock("@supabase/supabase-js", () => ({
       createClient: () => { throw new Error("createClient failed"); },
     }));
     const { rateLimit } = await import("@/lib/rate-limit");
