@@ -76,7 +76,6 @@ export async function POST(request: Request) {
     const admin = createAdminClient();
     const { data, error } = await admin
       .from("tasks")
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .insert({
         title:        body.title.trim(),
         priority:     body.priority     || "medium",
@@ -85,6 +84,7 @@ export async function POST(request: Request) {
         due_at:       body.due_at       || null,
         description:  body.description  || null,
         ai_generated: body.ai_generated ?? false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
       .select()
       .single();
