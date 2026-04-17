@@ -178,6 +178,17 @@ export function REAPACopilot() {
                       </button>
                     ))}
                   </div>
+                  {/* Calendly demo booking CTA — only renders when NEXT_PUBLIC_CALENDLY_URL is set at build time */}
+                  {process.env.NEXT_PUBLIC_CALENDLY_URL && (
+                    <a
+                      href={process.env.NEXT_PUBLIC_CALENDLY_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 text-xs text-center w-full px-3 py-2 border border-indigo-500/40 text-indigo-300 hover:bg-indigo-500/10 rounded-lg transition-colors"
+                    >
+                      📅 Book a demo call
+                    </a>
+                  )}
                 </div>
               )}
 
