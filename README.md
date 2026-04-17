@@ -187,6 +187,50 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
+## ⚙️ Environment Variables
+
+All variables are configured in **Vercel Dashboard → Settings → Environment Variables**.
+A new deployment is required after adding any variable.
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NEXT_PUBLIC_POSTHOG_KEY` | Recommended | PostHog analytics API key. Without this, all tracking events are silent no-ops. |
+| `NEXT_PUBLIC_CALENDLY_URL` | Optional | Your Calendly booking link (e.g. `https://calendly.com/arturhmet`). Adds a "Book a demo call" CTA in the AI Copilot empty state. |
+| `RESEND_API_KEY` | Optional | Resend API key for waitlist confirmation emails. Without this no confirmation email is sent but signups still save. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Recommended | Supabase service role key for admin operations (account deletion, admin panel). |
+| `ADMIN_EMAILS` | Optional | Comma-separated admin email addresses (e.g. `admin@example.com`). Reinforces role-based access to `/admin`. |
+| `NEXT_PUBLIC_APP_URL` | Optional | Public app URL (default: `https://reapa-mvp.vercel.app`). Used for canonical URLs and OG metadata. |
+| `VERCEL_TOKEN` | CI only | Vercel personal access token — add as a **GitHub repository secret** (not Vercel env) to enable the CI deploy fallback job. |
+
+### 📊 PostHog Analytics Setup (EU Region)
+
+> **Why EU?** REAPA runs on Supabase `eu-west-1` (Ireland). Using PostHog EU keeps analytics data within the EU, satisfying GDPR data residency requirements.
+
+1. Go to [eu.posthog.com](https://eu.posthog.com) and create an account
+2. Create a new **Web** project — make sure to select **EU** data region (Frankfurt)
+3. In **Project Settings → API Keys**, copy your **Project API Key** (starts with `phc_`)
+4. In Vercel: **Settings → Environment Variables**, add:
+   - Key: `NEXT_PUBLIC_POSTHOG_KEY`  |  Value: `phc_your_key_here`  |  Environment: Production + Preview
+5. Trigger a redeploy (push any commit, or manually redeploy from Vercel dashboard)
+6. Visit the live app — PostHog Live View should show `$pageview` events within 30 seconds ✅
+
+### 📧 Resend Email Setup (Waitlist Confirmation)
+
+1. Create a free account at [resend.com](https://resend.com)
+2. Go to **API Keys → Create API Key** (copy the `re_` prefixed key)
+3. In Vercel env, add: `RESEND_API_KEY` = `re_your_key_here`
+4. **No domain verification needed** for sandbox — emails send from `onboarding@resend.dev`
+5. For production branding: add + verify your domain in Resend to send from `hello@yourdomain.com`
+
+### 📅 Calendly Demo CTA Setup
+
+1. Create a [Calendly](https://calendly.com) account and configure your availability
+2. Copy your booking link (e.g. `https://calendly.com/arturhmet/30min`)
+3. In Vercel env, add: `NEXT_PUBLIC_CALENDLY_URL` = `https://calendly.com/your-link`
+4. Redeploy — a **"📅 Book a demo call"** button appears in the AI Copilot empty state ✅
+
+---
+
 <div align="center">
 
 **Built with ❤️ in Malta for real estate agents worldwide**
