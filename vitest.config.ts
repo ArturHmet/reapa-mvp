@@ -11,7 +11,15 @@ export default defineConfig({
     include: ["src/__tests__/**/*.test.{ts,tsx}"],
     coverage: {
       reporter: ["text", "json", "html"],
+      // Scope to business logic only (excludes UI components/pages)
+      include: ["src/lib/**/*.ts", "src/app/api/**/*.ts"],
       exclude: ["node_modules/", "src/__tests__/"],
+      thresholds: {
+        lines: 60,
+        functions: 60,
+        branches: 50,
+        statements: 60,
+      },
     },
   },
   resolve: {

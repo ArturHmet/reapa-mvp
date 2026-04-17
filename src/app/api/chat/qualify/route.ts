@@ -1,8 +1,8 @@
 // BUG-039: nodejs runtime -- edge cannot import franc-min (CJS); nodejs resolves process.env at request time
-import { NextRequest, NextResponse } from "next/server";
-import { runNLPPipeline } from "@/lib/ai/nlp-pipeline";
+import { NextRequest, NextResponse } from \"next/server\";
+import { runNLPPipeline } from \"@/lib/ai/nlp-pipeline\";
 
-export const runtime = "nodejs";
+export const runtime = \"nodejs\";
 
 const SCORING = {
   intent: { buy: 30, sell: 30, valuation: 30, rent: 20, browse: 5 },
@@ -65,7 +65,7 @@ function getNextQuestion(
       else if (msg.includes("3-6")||msg.includes("six months")) { timeline="3-6months"; score=SCORING.timeline["3-6months"]; }
       s = { ...s, timeline, score: s.score + score, step: 2 };
       const bQ = s.intent==="sell" ? "What are you expecting to get for the property?" : "What\u2019s your budget range?";
-      return { message: `Got it! ${bQ}\n\nA) Under \u20ac200K\nB) \u20ac200K \u2013 \u20ac400K\nC) \u20ac400K  u2013 \u20ac700K\nD) \u20ac700K \u2013 \u20ac1M\nE) Over \u20ac1M`, newState: s, isComplete: false };
+      return { message: `Got it! ${bQ}\n\nA) Under \u20ac200K\nB) \u20ac200K \u2013 \u20ac400K\nC) \u20ac400K \u2013 \u20ac700K\nD) \u20ac700K \u2013 \u20ac1M\nE) Over \u20ac1M`, newState: s, isComplete: false };
     }
     case 2: {
       let budget = "under200K", score = SCORING.budget["under200K"];
@@ -109,7 +109,13 @@ function getNextQuestion(
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { messages, state }: { messages: ChatMessage[]; state: LeadState } = body;
+    // BUG-043: backward-compat — normalize legacy { message: string } callers to messages[]
+    const messages: ChatMessage[] = body.messages ??
+      (body.message != null ? [{ role: "user" as const, content: String(body.message) }] : null);
+    if (!messages) {
+      return NextResponse.json({ error: "messages[] or message field required" }, { status: 400 });
+    }
+    const { state }: { state: LeadState } = body;
     const currentState: LeadState = state || { step: 0, score: 0 };
     const lastUserMessage = messages[messages.length - 1]?.content || "";
 
