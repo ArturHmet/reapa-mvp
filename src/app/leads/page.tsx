@@ -3,12 +3,12 @@ import { Card, Badge } from "@/components/UI";
 import { leads as mockLeads, type Lead } from "@/lib/data";
 import { formatCurrency, timeAgo } from "@/lib/utils";
 import { Search, MessageSquare, Mail, Globe, Star, Heart, Users, Zap, Phone, UserCheck } from "lucide-react";
-import { useState, useEffect, MouseEvent } from "react";
+import { useState, useEffect, MouseEvent, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n/config";
 import { useToast } from "@/components/Toast";
 
-const sourceIcons: Record<string, React.ReactNode> = {
+const sourceIcons: Record<string, ReactNode> = {
   whatsapp:  <MessageSquare size={14} className="text-green-400" />,
   email:     <Mail          size={14} className="text-blue-400" />,
   portal:    <Globe         size={14} className="text-purple-400" />,
