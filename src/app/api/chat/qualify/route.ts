@@ -190,6 +190,28 @@ export async function POST(req: NextRequest) {
         nlp.leadTemperature,
         nlp.overallConfidence,
       );
+
+      // PostHog server-side event — fire-and-forget via HTTP Capture API
+      const phKey  = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+      const phHost = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com";
+      if (phKey) {
+        fetch(`${phHost}/capture/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            api_key:     phKey,
+            event:       "lead_saved",
+            distinct_id: "server-qualify",
+            properties: {
+              source:     "ai_copilot",
+              auto_saved: true,
+              language:   nlp.language,
+              temperature,
+              confidence: nlp.overallConfidence,
+            },
+          }),
+        }).catch(() => {}); // never throws
+      }
     }
 
     return NextResponse.json({

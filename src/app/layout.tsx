@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import "@/styles/rtl.css";
 import { ConditionalSidebar } from "@/components/ConditionalSidebar";
@@ -7,6 +8,7 @@ import { REAPACopilot } from "@/components/REAPACopilot";
 import { PostHogProvider } from "@/components/analytics/PostHogProvider";
 import { GA4Script } from "@/components/analytics/GA4Script";
 import { ToastProvider } from "@/components/Toast";
+import { PageViewTracker } from "@/lib/posthog";
 
 export const metadata: Metadata = {
   title: "REAPA — AI Assistant for Real Estate Agents",
@@ -36,6 +38,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex h-screen overflow-hidden">
         <GA4Script />
         <PostHogProvider />
+        {/* PageViewTracker fires $pageview on every route change via usePathname */}
+        <Suspense fallback={null}>
+          <PageViewTracker />
+        </Suspense>
         <I18nProvider>
           <ToastProvider>
             <ConditionalSidebar />

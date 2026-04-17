@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { captureEvent } from "@/lib/posthog";
 import { useChat, type Message } from "ai/react";
 import { X, Minimize2, Maximize2, Send, Bot } from "lucide-react";
 
@@ -41,7 +42,21 @@ export function REAPACopilot() {
 
   // BUG FIX Task 5: append() only, no double-submit via form.requestSubmit()
   const handleQuickPrompt = (prompt: string) => {
+    captureEvent("copilot_message_sent", {
+      is_first_message: messages.length === 0,
+      char_count: prompt.length,
+      query_type: "quick_prompt",
+    });
     append({ role: "user", content: prompt });
+  };
+
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    captureEvent("copilot_message_sent", {
+      is_first_message: messages.length === 0,
+      char_count: input.trim().length,
+      query_type: "typed",
+    });
+    handleSubmit(e);
   };
 
   // MOB-002: FAB — raised by safe-area-inset-bottom so it clears iOS home
@@ -202,7 +217,7 @@ export function REAPACopilot() {
              * gesture nav bar. Falls back to 0px on devices without safe areas.
              */}
             <form
-              onSubmit={handleSubmit}
+              onSubmit={handleFormSubmit}
               className="flex items-center gap-2 px-3 pt-3 border-t border-gray-700"
               style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom, 0px))" }}
             >
