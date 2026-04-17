@@ -2,7 +2,7 @@
 import { Card, Badge } from "@/components/UI";
 import { leads as mockLeads, type Lead } from "@/lib/data";
 import { formatCurrency, timeAgo } from "@/lib/utils";
-import { Search, Filter, ArrowUpDown, MessageSquare, Mail, Globe, Star, Heart, Users, Zap, Phone } from "lucide-react";
+import { Search, MessageSquare, Mail, Globe, Star, Heart, Users, Zap, Phone } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const sourceIcons: Record<string, React.ReactNode> = {

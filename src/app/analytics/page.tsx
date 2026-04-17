@@ -1,8 +1,8 @@
 "use client";
 import { Card, StatCard, ProgressBar } from "@/components/UI";
-import { dashboardStats, funnelData, leadSourceData, clients, leads } from "@/lib/data";
+import { funnelData, leadSourceData } from "@/lib/data";
 import { formatCurrency } from "@/lib/utils";
-import { TrendingUp, TrendingDown, DollarSign, Users, Clock, Target, BarChart3 } from "lucide-react";
+import { TrendingUp, DollarSign, Clock, Target, BarChart3 } from "lucide-react";
 
 export default function AnalyticsPage() {
   const monthlyRevenue = [
