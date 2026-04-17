@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 // BUG-T005: static import for getClientId — dynamic require() doesn't resolve @ alias in Vitest
 import { getClientId } from "@/lib/rate-limit";
 
@@ -86,6 +86,65 @@ describe("rateLimit (in-memory fallback)", () => {
     const allowedB = await rateLimit(idB, { maxRequests: 2 });
     expect(blockedA.allowed).toBe(false);
     expect(allowedB.allowed).toBe(true);
+  });
+});
+
+describe("rateLimit — Supabase RPC path (BUG-T005 extension: lines 14-17, 43-64)", () => {
+  beforeEach(() => {
+    vi.resetModules();
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-key";
+  });
+
+  afterEach(() => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    vi.restoreAllMocks();
+  });
+
+  it("returns allowed=true when Supabase RPC count is under limit", async () => {
+    vi.mock("@supabase/supabase-js", () => ({
+      createClient: () => ({
+        rpc: vi.fn().mockResolvedValue({ data: 1, error: null }),
+      }),
+    }));
+    const { rateLimit } = await import("@/lib/rate-limit");
+    const result = await rateLimit(`rpc-allowed-${Date.now()}`, { maxRequests: 20 });
+    expect(result.allowed).toBe(true);
+  });
+
+  it("returns allowed=false when Supabase RPC count exceeds limit", async () => {
+    vi.mock("@supabase/supabase-js", () => ({
+      createClient: () => ({
+        rpc: vi.fn().mockResolvedValue({ data: 25, error: null }),
+      }),
+    }));
+    const { rateLimit } = await import("@/lib/rate-limit");
+    const result = await rateLimit(`rpc-blocked-${Date.now()}`, { maxRequests: 20 });
+    expect(result.allowed).toBe(false);
+    expect(result.remaining).toBe(0);
+    expect(result.retryAfterMs).toBeGreaterThan(0);
+  });
+
+  it("falls back to in-memory when Supabase RPC returns error", async () => {
+    vi.mock("@supabase/supabase-js", () => ({
+      createClient: () => ({
+        rpc: vi.fn().mockResolvedValue({ data: null, error: new Error("RPC failed") }),
+      }),
+    }));
+    const { rateLimit } = await import("@/lib/rate-limit");
+    const result = await rateLimit(`rpc-fallback-${Date.now()}`, { maxRequests: 20 });
+    // Falls back to in-memory → first request always allowed
+    expect(result.allowed).toBe(true);
+  });
+
+  it("falls back to in-memory when createClient throws", async () => {
+    vi.mock("@supabase/supabase-js", () => ({
+      createClient: () => { throw new Error("createClient failed"); },
+    }));
+    const { rateLimit } = await import("@/lib/rate-limit");
+    const result = await rateLimit(`rpc-throw-${Date.now()}`, { maxRequests: 20 });
+    expect(result.allowed).toBe(true);
   });
 });
 
