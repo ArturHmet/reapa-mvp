@@ -59,7 +59,7 @@ export async function POST(
     await admin
       .from("leads")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .update({ temperature: "ice" } as any)
+      .update({ temperature: "ice" } as unknown as never)
       .eq("id", id);
 
     return NextResponse.json(
