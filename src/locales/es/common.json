@@ -121,5 +121,17 @@
     "create": "Crear",
     "creating": "Creando…",
     "titlePlaceholder": "Título de tarea…"
+  },
+  "onboarding": {
+    "welcomeTitle": "¡Bienvenido a REAPA!",
+    "welcomeSubtitle": "Tu asistente de IA está listo. Añade un lead o prueba el Copilot.",
+    "step1Title": "Añade tu primer lead",
+    "step1Desc": "Importa o introduce un prospecto",
+    "step2Title": "Crea una tarea",
+    "step2Desc": "Registra visitas, llamadas y seguimientos",
+    "step3Title": "Gestiona clientes",
+    "step3Desc": "Mueve leads por tu pipeline hasta el cierre",
+    "copilotHint": "💬 Prueba el Copilot en la esquina inferior derecha",
+    "copilotDesc": "Califica un lead, redacta un seguimiento o revisa AML"
   }
 }

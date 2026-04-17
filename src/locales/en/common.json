@@ -121,5 +121,17 @@
     "create": "Create",
     "creating": "Creating…",
     "titlePlaceholder": "Task title…"
+  },
+  "onboarding": {
+    "welcomeTitle": "Welcome to REAPA!",
+    "welcomeSubtitle": "Your AI real estate assistant is ready. Start by adding a lead or try the AI copilot.",
+    "step1Title": "Add your first lead",
+    "step1Desc": "Import or manually enter a prospect",
+    "step2Title": "Create a task",
+    "step2Desc": "Track viewings, calls, and follow-ups",
+    "step3Title": "Manage clients",
+    "step3Desc": "Move leads through your pipeline",
+    "copilotHint": "💬 Try the AI Copilot in the bottom-right corner",
+    "copilotDesc": "Ask it to qualify a lead, draft a follow-up, or check AML compliance"
   }
 }

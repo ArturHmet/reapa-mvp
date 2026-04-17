@@ -17,6 +17,13 @@ export function REAPACopilot() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // UX-BETA-003: First-visit nudge — show tooltip for 8s if user hasn't opened copilot yet
+  const [showNudge, setShowNudge] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setShowNudge(false), 8000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const { messages, input, handleInputChange, handleSubmit, isLoading, append } = useChat({
     api: "/api/ai/chat",
     onError: (err) => console.error("[REAPACopilot]", err),
@@ -41,12 +48,20 @@ export function REAPACopilot() {
   // indicator and Android gesture nav bar when viewport-fit=cover is active.
   if (!isOpen) {
     return (
+      <div className="fixed right-6 z-50" style={{ bottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))" }}>
+        {/* First-visit nudge bubble */}
+        {showNudge && (
+          <div className="absolute bottom-full right-0 mb-3 bg-[var(--bg-card)] border border-indigo-500/30 rounded-xl px-3 py-2 shadow-lg w-48 pointer-events-none">
+            <p className="text-xs font-medium text-indigo-300">✨ Ask your AI assistant</p>
+            <p className="text-[10px] text-[var(--text-muted)] mt-0.5">Summarize leads, draft replies, check compliance…</p>
+            <div className="absolute bottom-[-6px] right-5 w-3 h-3 bg-[var(--bg-card)] border-r border-b border-indigo-500/30 rotate-45" />
+          </div>
+        )}
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={() => { setIsOpen(true); setShowNudge(false); }}
         aria-label="Open REAPA Copilot"
-        className="fixed right-6 z-50 flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all hover:scale-105"
-        style={{ bottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))" }}
-      >
+        className="relative flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all hover:scale-105"
+          >
         <Bot size={20} />
         <span className="text-sm font-medium">REAPA Copilot</span>
       </button>

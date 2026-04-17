@@ -1,15 +1,22 @@
 "use client";
-import {useState} from "react";
-import {getSupabaseBrowser} from "@/lib/supabase/client";
+import { useState } from "react";
+import { getSupabaseBrowser } from "@/lib/supabase/client";
 import Link from "next/link";
+import { Bot, Users, Zap } from "lucide-react";
+
+const VALUE_PROPS = [
+  { icon: <Bot  size={15} className="text-indigo-400" />, title: "AI Lead Qualification", desc: "Score and qualify every lead automatically" },
+  { icon: <Zap  size={15} className="text-violet-400" />, title: "WhatsApp + Email AI", desc: "Reply to prospects in seconds, 24/7" },
+  { icon: <Users size={15} className="text-blue-400"  />, title: "CRM Pipeline",          desc: "Track every client from lead to closed deal" },
+];
 
 export default function SignupPage() {
-  const [email, setEmail] = useState("");
+  const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [name,     setName]     = useState("");
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState("");
+  const [success,  setSuccess]  = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -21,11 +28,7 @@ export default function SignupPage() {
       options: { data: { full_name: name } },
     });
     setLoading(false);
-    if (err) {
-      setError(err.message);
-    } else {
-      setSuccess(true);
-    }
+    if (err) { setError(err.message); } else { setSuccess(true); }
   }
 
   if (success) {
@@ -37,7 +40,8 @@ export default function SignupPage() {
           </div>
           <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">Check your inbox</h2>
           <p className="text-sm text-[var(--text-muted)] mb-4">
-            We sent a confirmation link to <span className="text-[var(--text-primary)] font-medium">{email}</span>.
+            We sent a confirmation link to{" "}
+            <span className="text-[var(--text-primary)] font-medium">{email}</span>.
             Click the link in that email to activate your account.
           </p>
           <p className="text-xs text-[var(--text-muted)]">
@@ -50,34 +54,57 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--bg-base)] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg-base)] px-4 py-8">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center"><span className="text-white font-bold text-sm">R</span></div>
+        {/* Logo + headline */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-2 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">R</span>
+            </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">REAPA</span>
           </div>
-          <p className="text-[var(--text-muted)] text-sm">AI-powered real estate CRM for Malta</p>
+          <p className="text-[var(--text-primary)] font-semibold text-base">Your AI assistant for real estate</p>
+          <p className="text-[var(--text-muted)] text-sm mt-1">Close more deals with less effort — built for Malta agents</p>
         </div>
+
+        {/* Value prop strip */}
+        <div className="grid grid-cols-3 gap-2 mb-5">
+          {VALUE_PROPS.map(vp => (
+            <div key={vp.title} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-3 text-center">
+              <div className="flex justify-center mb-1">{vp.icon}</div>
+              <div className="text-[10px] font-semibold text-[var(--text-primary)] leading-tight">{vp.title}</div>
+              <div className="text-[9px] text-[var(--text-muted)] mt-0.5 leading-tight hidden sm:block">{vp.desc}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Form card */}
         <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-8 shadow-xl">
           <h1 className="text-xl font-semibold text-[var(--text-primary)] mb-1">Create your account</h1>
-          <p className="text-sm text-[var(--text-muted)] mb-6">Start your REAPA free trial</p>
-          {error && <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>}
+          <p className="text-sm text-[var(--text-muted)] mb-6">Free 14-day trial · No credit card required</p>
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm text-[var(--text-secondary)] mb-1.5">Full name</label>
-              <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className="w-full px-4 py-2.5 bg-[var(--bg-base)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-indigo-500 transition-colors text-sm" />
+              <input type="text" required value={name} onChange={e => setName(e.target.value)} placeholder="Your name"
+                className="w-full px-4 py-2.5 bg-[var(--bg-base)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-indigo-500 transition-colors text-sm" />
             </div>
             <div>
               <label className="block text-sm text-[var(--text-secondary)] mb-1.5">Email</label>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full px-4 py-2.5 bg-[var(--bg-base)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-indigo-500 transition-colors text-sm" />
+              <input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com"
+                className="w-full px-4 py-2.5 bg-[var(--bg-base)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-indigo-500 transition-colors text-sm" />
             </div>
             <div>
               <label className="block text-sm text-[var(--text-secondary)] mb-1.5">Password</label>
-              <input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min. 8 characters" className="w-full px-4 py-2.5 bg-[var(--bg-base)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-indigo-500 transition-colors text-sm" />
+              <input type="password" required minLength={8} value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 8 characters"
+                className="w-full px-4 py-2.5 bg-[var(--bg-base)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-indigo-500 transition-colors text-sm" />
             </div>
-            <button type="submit" disabled={loading} className="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-all text-sm">
-              {loading ? "Creating account…" : "Create account"}
+            <button type="submit" disabled={loading}
+              className="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-all text-sm">
+              {loading ? "Creating account…" : "Start free trial"}
             </button>
           </form>
           <p className="text-center text-sm text-[var(--text-muted)] mt-5">

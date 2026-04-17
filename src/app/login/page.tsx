@@ -36,10 +36,11 @@ export default function LoginPage() {
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">REAPA</span>
           </div>
-          <p className="text-[var(--text-muted)] text-sm">AI-powered real estate CRM for Malta</p>
+          <p className="text-[var(--text-primary)] font-semibold text-base">Your AI assistant for real estate</p>
+          <p className="text-[var(--text-muted)] text-sm mt-0.5">Leads · CRM · WhatsApp AI · Malta</p>
         </div>
         <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-8 shadow-xl">
-          <h1 className="text-xl font-semibold text-[var(--text-primary)] mb-1">Welcome back</h1>
+          <h1 className="text-xl font-semibold text-[var(--text-primary)] mb-1">Welcome back 👋</h1>
           <p className="text-sm text-[var(--text-muted)] mb-6">Sign in to your REAPA account</p>
           {error && (
             <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>

@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [leadSourceData, setLeadSourceData] = useState(mockSourceData);
   const [leads, setLeads] = useState(mockLeads);
   const [tasks, setTasks] = useState(mockTasks);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
     fetch("/api/dashboard").then(r => r.json()).then(d => {
@@ -22,13 +23,51 @@ export default function Dashboard() {
       if (d.funnelData) setFunnelData(d.funnelData);
       if (d.leadSourceData) setLeadSourceData(d.leadSourceData);
     }).catch(() => {});
-    fetch("/api/leads").then(r => r.json()).then(setLeads).catch(() => {});
-    fetch("/api/tasks").then(r => r.json()).then(setTasks).catch(() => {});
+    Promise.allSettled([
+      fetch("/api/leads").then(r => r.json()).then(setLeads).catch(() => {}),
+      fetch("/api/tasks").then(r => r.json()).then(setTasks).catch(() => {}),
+    ]).finally(() => setDataLoaded(true));
   }, []);
 
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   const urgentTasks = tasks.filter(task => task.priority === "urgent" || task.status === "overdue");
   const hotLeads = leads.filter(lead => lead.score === "hot");
+
+  const isEmptyState = dataLoaded && stats.totalLeads === 0 && leads.length === 0 && tasks.length === 0;
+
+  if (isEmptyState) {
+    return (
+      <div className="max-w-2xl mx-auto mt-12 px-4">
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20">
+            <Sparkles size={28} className="text-white" />
+          </div>
+          <h1 className="text-2xl font-bold mb-2">{t("onboarding.welcomeTitle")}</h1>
+          <p className="text-[var(--text-muted)] text-sm">{t("onboarding.welcomeSubtitle")}</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          {([
+            { icon: <UserPlus size={22} className="text-indigo-400" />, titleKey: "onboarding.step1Title", descKey: "onboarding.step1Desc", href: "/leads",   color: "indigo" },
+            { icon: <Clock    size={22} className="text-violet-400" />, titleKey: "onboarding.step2Title", descKey: "onboarding.step2Desc", href: "/tasks",   color: "violet" },
+            { icon: <Target   size={22} className="text-emerald-400"/>, titleKey: "onboarding.step3Title", descKey: "onboarding.step3Desc", href: "/clients", color: "emerald"},
+          ] as const).map(step => (
+            <a key={step.href} href={step.href}
+              className={`group bg-[var(--bg-card)] border border-[var(--border)] hover:border-${step.color}-500/50 rounded-2xl p-5 transition-all hover:-translate-y-0.5 cursor-pointer`}>
+              <div className={`w-10 h-10 rounded-xl bg-${step.color}-500/10 flex items-center justify-center mb-3`}>
+                {step.icon}
+              </div>
+              <div className="font-semibold text-sm mb-1">{t(step.titleKey)}</div>
+              <div className="text-xs text-[var(--text-muted)]">{t(step.descKey)}</div>
+            </a>
+          ))}
+        </div>
+        <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-2xl p-5 text-center">
+          <p className="text-sm text-indigo-300 font-medium mb-1">{t("onboarding.copilotHint")}</p>
+          <p className="text-xs text-[var(--text-muted)]">{t("onboarding.copilotDesc")}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">

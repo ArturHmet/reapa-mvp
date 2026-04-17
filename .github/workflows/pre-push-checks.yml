@@ -1,0 +1,36 @@
+name: Pre-push Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-config:
+    name: Validate project config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check package.json has name
+        run: |
+          NAME=$(node -e "const p=require('./package.json'); process.stdout.write(p.name||'')")
+          if [ -z "$NAME" ]; then
+            echo "ERROR: package.json missing 'name' field — Vercel will fail with missing_name"
+            exit 1
+          fi
+          echo "package.json name: $NAME ✅"
+
+      - name: Check vercel.json if present
+        run: |
+          if [ -f vercel.json ]; then
+            NAME=$(node -e "const v=require('./vercel.json'); process.stdout.write(v.name||v.projectId||'')")
+            if [ -z "$NAME" ]; then
+              echo "WARNING: vercel.json exists but has no name/projectId — may cause missing_name on Vercel"
+            else
+              echo "vercel.json name/projectId: $NAME ✅"
+            fi
+          else
+            echo "No vercel.json (using Vercel project settings) ✅"
+          fi
