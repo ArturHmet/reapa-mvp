@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
  * Protects dashboard routes; redirects unauthenticated users to /login.
  */
 
-const PROTECTED = ["/", "/leads", "/clients", "/tasks", "/analytics", "/admin"];
+const PROTECTED = ["/", "/leads", "/clients", "/tasks", "/analytics", "/admin", "/onboarding"];
 const AUTH_ROUTES = ["/login", "/signup"];
 
 export async function middleware(request: NextRequest) {

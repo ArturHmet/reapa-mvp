@@ -132,6 +132,24 @@
     "step3Title": "Gestiona clientes",
     "step3Desc": "Mueve leads por tu pipeline hasta el cierre",
     "copilotHint": "💬 Prueba el Copilot en la esquina inferior derecha",
-    "copilotDesc": "Califica un lead, redacta un seguimiento o revisa AML"
+    "copilotDesc": "Califica un lead, redacta un seguimiento o revisa AML",
+    "s1Headline": "Bienvenido a REAPA",
+    "s1Subhead": "Tu asistente de IA personal para agentes inmobiliarios.",
+    "s1Bullet1": "Califica leads en segundos — solo ten una conversación",
+    "s1Bullet2": "Cada lead calificado se guarda automáticamente — sin entrada manual",
+    "s1Bullet3": "Funciona en inglés, ruso y español",
+    "s1Cta": "Comenzar →",
+    "s2Headline": "Elige tu idioma",
+    "s2Subhead": "Puedes cambiarlo en cualquier momento en Configuración.",
+    "s2Continue": "Continuar →",
+    "s3Headline": "Conoce tu Copilot de IA",
+    "s3Subhead": "Pregúntale cualquier cosa sobre un lead.",
+    "s3CopilotIntro": "¡Hola! Soy tu REAPA Copilot. Cuéntame sobre un cliente potencial y te ayudaré a calificarlo — y lo guardaré automáticamente en tu dashboard.",
+    "s3DemoPrompt": "Mi cliente María busca un apartamento de 2 habitaciones en Malta por menos de €250K, lista para comprar en 3 meses",
+    "s3SendHint": "Toca el mensaje de ejemplo o escribe el tuyo",
+    "s3GoToDashboard": "Ir al Dashboard →",
+    "s3OpenDashboard": "Abrir mi dashboard →",
+    "s3LeadSaved": "✅ ¡Lead guardado en tu dashboard!",
+    "backBtn": "← Atrás"
   }
 }

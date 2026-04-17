@@ -132,6 +132,24 @@
     "step3Title": "Manage clients",
     "step3Desc": "Move leads through your pipeline",
     "copilotHint": "💬 Try the AI Copilot in the bottom-right corner",
-    "copilotDesc": "Ask it to qualify a lead, draft a follow-up, or check AML compliance"
+    "copilotDesc": "Ask it to qualify a lead, draft a follow-up, or check AML compliance",
+    "s1Headline": "Welcome to REAPA",
+    "s1Subhead": "Your AI personal assistant for real estate agents.",
+    "s1Bullet1": "Qualify leads in seconds — just have a conversation",
+    "s1Bullet2": "Every qualified lead auto-saves — no manual entry ever",
+    "s1Bullet3": "Works in English, Russian, and Spanish",
+    "s1Cta": "Get Started →",
+    "s2Headline": "Choose your language",
+    "s2Subhead": "You can change this anytime in Settings.",
+    "s2Continue": "Continue →",
+    "s3Headline": "Meet your AI Copilot",
+    "s3Subhead": "Ask it anything about a lead.",
+    "s3CopilotIntro": "Hi! I'm your REAPA Copilot. Tell me about a potential client and I'll help you qualify them — and save them to your dashboard automatically.",
+    "s3DemoPrompt": "My client Maria is looking for a 2-bedroom apartment in Malta under €250K, ready to buy in 3 months",
+    "s3SendHint": "Tap the prompt above or type your own",
+    "s3GoToDashboard": "Go to Dashboard →",
+    "s3OpenDashboard": "Open my dashboard →",
+    "s3LeadSaved": "✅ Lead saved to your dashboard!",
+    "backBtn": "← Back"
   }
 }

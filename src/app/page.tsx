@@ -15,6 +15,18 @@ export default function Dashboard() {
   const [leads, setLeads] = useState(mockLeads);
   const [tasks, setTasks] = useState(mockTasks);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const router = useRouter();
+
+  // Onboarding gate: new users (onboarding_complete === false) → /onboarding/welcome
+  useEffect(() => {
+    const supabase = getSupabaseBrowser();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user?.user_metadata?.onboarding_complete === false) {
+        router.replace("/onboarding/welcome");
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     fetch("/api/dashboard").then(r => r.json()).then(d => {

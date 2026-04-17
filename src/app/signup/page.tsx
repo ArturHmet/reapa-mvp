@@ -7,7 +7,7 @@ import { Bot, Users, Zap } from "lucide-react";
 const VALUE_PROPS = [
   { icon: <Bot  size={15} className="text-indigo-400" />, title: "AI Lead Qualification", desc: "Score and qualify every lead automatically" },
   { icon: <Zap  size={15} className="text-violet-400" />, title: "WhatsApp + Email AI", desc: "Reply to prospects in seconds, 24/7" },
-  { icon: <Users size={15} className="text-blue-400"  />, title: "CRM Pipeline",          desc: "Track every client from lead to closed deal" },
+  { icon: <Users size={15} className="text-blue-400"  />, title: "Zero Manual Entry",       desc: "AI fills your CRM from conversations automatically" },
 ];
 
 export default function SignupPage() {
@@ -25,7 +25,7 @@ export default function SignupPage() {
     const supabase = getSupabaseBrowser();
     const { error: err } = await supabase.auth.signUp({
       email, password,
-      options: { data: { full_name: name } },
+      options: { data: { full_name: name, onboarding_complete: false } },
     });
     setLoading(false);
     if (err) { setError(err.message); } else { setSuccess(true); }
