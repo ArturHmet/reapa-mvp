@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import type {Metadata} from "next";
+import {notFound} from "next/navigation";
 import Link from "next/link";
-import { getPostBySlug, getAllPosts } from "@/content/blog/posts";
-import { Calendar, Clock, ArrowLeft, ExternalLink } from "lucide-react";
-import { marked } from "marked";
+import {getPostBySlug, getAllPosts} from "@/content/blog/posts";
+import {Calendar, Clock, ArrowLeft, ExternalLink} from "lucide-react";
+import {marked} from "marked";
 
 // BUG-041: hard-404 any slug not in generateStaticParams — prevents soft-404 SEO risk
 export const dynamicParams = false;

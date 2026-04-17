@@ -1,8 +1,8 @@
 "use client";
-import { Card, Badge } from "@/components/UI";
-import { tasks as mockTasks, type Task } from "@/lib/data";
-import { Phone, Eye, Clock, FileText, Shield, CheckSquare, Sparkles, Check, Circle } from "lucide-react";
-import { useState, useEffect } from "react";
+import {Card, Badge} from "@/components/UI";
+import {tasks as mockTasks, type Task} from "@/lib/data";
+import {Phone, Eye, Clock, FileText, Shield, CheckSquare, Sparkles, Check, Circle} from "lucide-react";
+import {useState, useEffect} from "react";
 
 const priorityColors: Record<string, string> = { urgent: "text-red-400", high: "text-orange-400", medium: "text-blue-400", low: "text-gray-400" };
 const priorityBg: Record<string, string> = { urgent: "bg-red-500/10 border-red-500/20", high: "bg-orange-500/10 border-orange-500/20", medium: "bg-blue-500/10 border-blue-500/20", low: "bg-[var(--bg)] border-[var(--border)]" };
@@ -59,7 +59,7 @@ export default function TasksPage() {
           return (
             <Card key={task.id} className={`transition-all ${priorityBg[task.priority]} ${isDone ? 'opacity-50' : ''}`}>
               <div className="flex items-center gap-3">
-                <button onClick={() => setCompleted(prev => { const n = new Set(prev); isDone ? n.delete(task.id) : n.add(task.id); return n; })} className="flex-shrink-0">
+                <button onClick={() => setCompleted(prev => { const n = new Set(prev); if (isDone) n.delete(task.id); else n.add(task.id); return n; })} className="flex-shrink-0">
                   {isDone ? <Check size={18} className="text-emerald-400" /> : <Circle size={18} className="text-[var(--text-muted)]" />}
                 </button>
                 <div className="flex-1 min-w-0">

@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { getSupabaseBrowser } from "@/lib/supabase/client";
+import {useState} from "react";
+import {getSupabaseBrowser} from "@/lib/supabase/client";
 import Link from "next/link";
 
 export default function SignupPage() {

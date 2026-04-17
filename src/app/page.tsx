@@ -1,9 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Card, Badge, StatCard, ProgressBar } from "@/components/UI";
-import { dashboardStats as mockStats, tasks as mockTasks, leads as mockLeads, clients as mockClients, funnelData as mockFunnel, leadSourceData as mockSourceData } from "@/lib/data";
-import { formatCurrency } from "@/lib/utils";
-import { Users, UserPlus, Eye, CheckSquare, AlertTriangle, TrendingUp, Clock, Target, Phone, MapPin, FileText, Shield, Sparkles } from "lucide-react";
+import {useState, useEffect} from "react";
+import {Card, Badge, StatCard, ProgressBar} from "@/components/UI";
+import {dashboardStats as mockStats, tasks as mockTasks, leads as mockLeads, funnelData as mockFunnel, leadSourceData as mockSourceData} from "@/lib/data";
+import {formatCurrency} from "@/lib/utils";
+import {Users, UserPlus, Eye, CheckSquare, Clock, Target, Phone, FileText, Shield, Sparkles} from "lucide-react";
 
 export default function Dashboard() {
   const [stats, setStats] = useState(mockStats);

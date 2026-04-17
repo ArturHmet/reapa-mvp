@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
+import type {Metadata} from "next";
 import Link from "next/link";
-import { getAllPosts } from "@/content/blog/posts";
-import { Calendar, Clock, ArrowRight, Rss } from "lucide-react";
+import {getAllPosts} from "@/content/blog/posts";
+import {Calendar, Clock, ArrowRight, Rss} from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Blog \u2014 REAPA | AI Tools for Real Estate Agents",

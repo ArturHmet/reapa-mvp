@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
-import { getSupabaseBrowser } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import {useState} from "react";
+import {getSupabaseBrowser} from "@/lib/supabase/client";
+import {useRouter} from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {

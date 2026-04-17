@@ -1,9 +1,9 @@
 "use client";
-import { Card, Badge } from "@/components/UI";
-import { clients as mockClients, type Client } from "@/lib/data";
-import { formatCurrency, timeAgo } from "@/lib/utils";
-import { Search, AlertTriangle, Ghost, MessageSquare, Phone, Eye } from "lucide-react";
-import { useState, useEffect } from "react";
+import {Card, Badge} from "@/components/UI";
+import {clients as mockClients, type Client} from "@/lib/data";
+import {formatCurrency, timeAgo} from "@/lib/utils";
+import {Search, AlertTriangle, Ghost, MessageSquare, Phone, Eye} from "lucide-react";
+import {useState, useEffect} from "react";
 
 const stageColors: Record<string, string> = { new: "bg-blue-500", qualified: "bg-purple-500", viewing: "bg-orange-500", offer: "bg-yellow-500", closed: "bg-emerald-500" };
 const stageLabels: Record<string, string> = { new: "New", qualified: "Qualified", viewing: "Viewing", offer: "Offer", closed: "Closed" };

@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import {useState} from "react";
 import Link from "next/link";
-import { Bot, CheckCircle, Zap, Users, TrendingUp, Shield } from "lucide-react";
+import {Bot, CheckCircle, Zap, Users, TrendingUp, Shield} from "lucide-react";
 
 const features = [
   { icon: Zap, title: "AI Lead Scoring", desc: "Hot/warm/cold from any channel" },
