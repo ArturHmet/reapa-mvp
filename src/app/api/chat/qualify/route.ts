@@ -54,25 +54,32 @@ function saveLeadToSupabase(
     state.timeline ? `Timeline: ${state.timeline}` : null,
   ].filter(Boolean).join(" | ");
 
-  void createAdminClient()
-    .from("leads")
-    .insert({
-      name: state.name,
-      phone: state.phone ?? null,
-      email: state.email ?? null,
-      source: "chat",
-      score: state.score,
-      temperature: temperature === "ice" ? "cold" : temperature,
-      intent: state.intent ?? null,
-      budget_range: state.budget ?? null,
-      location: state.location ?? null,
-      notes,
-      last_contact_at: new Date().toISOString(),
-    })
-    .then(({ error }) => {
-      if (error) console.error("[qualify] Lead auto-save failed:", error.message);
-      else console.log("[qualify] Lead auto-saved:", state.name);
-    });
+  // BUG-T009: Supabase generated types don't include leads table yet → cast to any
+  // BUG-T010: createAdminClient() may throw synchronously (e.g. missing env in CI smoke tests)
+  //           → wrap entire block in try-catch so the function is truly fire-and-forget
+  try {
+    void createAdminClient()
+      .from("leads")
+      .insert({
+        name: state.name,
+        phone: state.phone ?? null,
+        email: state.email ?? null,
+        source: "chat",
+        score: state.score,
+        temperature: temperature === "ice" ? "cold" : temperature,
+        intent: state.intent ?? null,
+        budget_range: state.budget ?? null,
+        location: state.location ?? null,
+        notes,
+        last_contact_at: new Date().toISOString(),
+      } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+      .then(({ error }: { error: { message: string } | null }) => {
+        if (error) console.error("[qualify] Lead auto-save failed:", error.message);
+        else console.log("[qualify] Lead auto-saved:", state.name);
+      });
+  } catch (e) {
+    console.error("[qualify] Lead auto-save setup failed:", e instanceof Error ? e.message : e);
+  }
 }
 
 function getNextQuestion(
