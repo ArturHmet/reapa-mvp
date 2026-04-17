@@ -25,6 +25,7 @@ type NewTaskForm = { title: string; priority: string; type: string; due_at: stri
 export default function TasksPage() {
   const { t } = useTranslation();
   const [tasksData, setTasksData]   = useState<Task[]>(mockTasks);
+  const [dataLoaded, setTaskDataLoaded] = useState(false);
   const [completed, setCompleted]   = useState<Set<string>>(new Set());
   const [filter, setFilter]         = useState<string>("all");
   const [showForm, setShowForm]     = useState(false);
@@ -33,7 +34,7 @@ export default function TasksPage() {
   const [form, setForm]             = useState<NewTaskForm>({ title: "", priority: "medium", type: "other", due_at: "" });
 
   useEffect(() => {
-    fetch("/api/tasks").then(r => r.json()).then(setTasksData).catch(() => {});
+    fetch("/api/tasks").then(r => r.json()).then(d => { setTasksData(d); setTaskDataLoaded(true); }).catch(() => { setTaskDataLoaded(true); });
   }, []);
 
   async function handleCreate(e: React.FormEvent) {

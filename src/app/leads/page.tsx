@@ -101,7 +101,19 @@ export default function LeadsPage() {
             onConvertError={handleConvertError}
           />
         ))}
-        {filtered.length === 0 && (
+        {filtered.length === 0 && leadsData.length === 0 && (
+          <div className="text-center py-16 px-4">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center mx-auto mb-3">
+              <UserPlus size={22} className="text-indigo-400" />
+            </div>
+            <p className="font-semibold text-sm mb-1">{t("leads.emptyTitle")}</p>
+            <p className="text-xs text-[var(--text-muted)] mb-4">{t("leads.emptyDesc")}</p>
+            <a href="#add" className="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--accent)] text-white text-xs rounded-lg hover:bg-[var(--accent-hover)] transition-colors">
+              <UserPlus size={13} /> {t("leads.addFirst")}
+            </a>
+          </div>
+        )}
+        {filtered.length === 0 && leadsData.length > 0 && (
           <div className="text-center text-sm text-[var(--text-muted)] py-12">{t("leads.noResults")}</div>
         )}
       </div>

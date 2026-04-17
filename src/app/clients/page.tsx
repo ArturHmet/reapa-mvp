@@ -42,6 +42,8 @@ export default function ClientsPage() {
 
   const ghostClients = clientsData.filter(c => c.daysInactive >= 5);
 
+  const isEmptyTable = clientsData.length === 0;
+
   return (
     <div className="max-w-7xl mx-auto space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -143,7 +145,7 @@ export default function ClientsPage() {
             </div>
           </Card>
         ))}
-        {filtered.length === 0 && (
+        {filtered.length === 0 && !isEmptyTable && (
           <div className="text-center text-sm text-[var(--text-muted)] py-12">{t("clients.noResults")}</div>
         )}
       </div>

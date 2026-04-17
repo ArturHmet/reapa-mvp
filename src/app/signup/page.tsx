@@ -5,9 +5,9 @@ import Link from "next/link";
 import { Bot, Users, Zap } from "lucide-react";
 
 const VALUE_PROPS = [
-  { icon: <Bot  size={15} className="text-indigo-400" />, title: "AI Lead Qualification", desc: "Score and qualify every lead automatically" },
-  { icon: <Zap  size={15} className="text-violet-400" />, title: "WhatsApp + Email AI", desc: "Reply to prospects in seconds, 24/7" },
-  { icon: <Users size={15} className="text-blue-400"  />, title: "Zero Manual Entry",       desc: "AI fills your CRM from conversations automatically" },
+  { icon: <Zap   size={15} className="text-indigo-400" />, title: "AI writes listing descriptions in 30 seconds", desc: "" },
+  { icon: <Bot   size={15} className="text-violet-400" />, title: "Responds to leads 24/7 — in their language",   desc: "" },
+  { icon: <Users size={15} className="text-blue-400"  />, title: "Works in English, Russian, and Maltese",        desc: "" },
 ];
 
 export default function SignupPage() {
@@ -74,7 +74,7 @@ export default function SignupPage() {
             <div key={vp.title} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-3 text-center">
               <div className="flex justify-center mb-1">{vp.icon}</div>
               <div className="text-[10px] font-semibold text-[var(--text-primary)] leading-tight">{vp.title}</div>
-              <div className="text-[9px] text-[var(--text-muted)] mt-0.5 leading-tight hidden sm:block">{vp.desc}</div>
+              {vp.desc && <div className="text-[9px] text-[var(--text-muted)] mt-0.5 leading-tight hidden sm:block">{vp.desc}</div>}
             </div>
           ))}
         </div>

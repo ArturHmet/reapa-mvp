@@ -88,7 +88,10 @@
     "convertToClient": "Convert to Client",
     "converted": "Lead converted to client!",
     "convertError": "Failed to convert lead",
-    "noResults": "No leads found"
+    "noResults": "No leads found",
+    "emptyTitle": "No leads yet",
+    "emptyDesc": "Add your first lead or let AI import from WhatsApp.",
+    "addFirst": "Add your first lead →"
   },
   "clients": {
     "title": "Client Manager",
@@ -104,7 +107,10 @@
     "lastContact": "Last contact",
     "call": "Call",
     "viewProfile": "View profile",
-    "noResults": "No clients found"
+    "noResults": "No clients found",
+    "emptyTitle": "No clients yet",
+    "emptyDesc": "Convert a qualified lead to start.",
+    "goToLeads": "Go to Leads →"
   },
   "tasks": {
     "title": "Task Manager",
@@ -120,7 +126,9 @@
     "cancel": "Cancel",
     "create": "Create",
     "creating": "Creating…",
-    "titlePlaceholder": "Task title…"
+    "titlePlaceholder": "Task title…",
+    "emptyTitle": "No tasks yet",
+    "emptyDesc": "Your AI will create tasks automatically as you work."
   },
   "onboarding": {
     "welcomeTitle": "Welcome to REAPA!",
