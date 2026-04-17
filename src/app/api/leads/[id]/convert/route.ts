@@ -36,20 +36,21 @@ export async function POST(
     };
 
     // 3. Create client record
+    const clientRecord = {
+      name:       leadData.name,
+      email:      leadData.email      || null,
+      phone:      leadData.phone      || null,
+      budget_min: budgetMin,
+      budget_max: budgetMax,
+      status:     "active",
+      notes:      leadData.notes
+        ? `Converted from lead. Notes: ${leadData.notes}`
+        : "Converted from lead.",
+    };
     const { data: client, error: clientError } = await admin
       .from("clients")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .insert({
-        name:       leadData.name,
-        email:      leadData.email      || null,
-        phone:      leadData.phone      || null,
-        budget_min: budgetMin,
-        budget_max: budgetMax,
-        status:     "active",
-        notes:      leadData.notes
-          ? `Converted from lead. Notes: ${leadData.notes}`
-          : "Converted from lead.",
-      } as any)
+      .insert(clientRecord as any)
       .select()
       .single();
 
@@ -58,7 +59,6 @@ export async function POST(
     // 4. Mark lead as converted (temperature → ice)
     await admin
       .from("leads")
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .update({ temperature: "ice" } as unknown as never)
       .eq("id", id);
 
