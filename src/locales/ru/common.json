@@ -85,5 +85,32 @@
     "email": "Email",
     "autoReplied": "Авто-ответ",
     "aiScore": "ИИ Оценка"
+  },
+  "clients": {
+    "title": "Клиенты",
+    "subtitle": "Активные клиенты и воронка сделок",
+    "searchPlaceholder": "Поиск клиентов…",
+    "stageNew": "Новый",
+    "stageQualified": "Квалифицирован",
+    "stageViewing": "Просмотр",
+    "stageOffer": "Оффер",
+    "stageClosed": "Закрыт",
+    "ghostAlert": "клиент без контакта 5+ дней",
+    "ghost": "Призрак",
+    "lastContact": "Последний контакт",
+    "call": "Позвонить",
+    "viewProfile": "Профиль",
+    "noResults": "Клиенты не найдены"
+  },
+  "tasks": {
+    "title": "Задачи",
+    "subtitle": "Задачи от ИИ и умное расписание",
+    "filterAll": "Все",
+    "filterUrgent": "🔴 Срочные",
+    "filterAI": "🤖 ИИ",
+    "filterDone": "✅ Готово",
+    "aiGenerated": "от ИИ",
+    "ai": "ИИ",
+    "noResults": "Нет задач по фильтрам"
   }
 }

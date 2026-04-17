@@ -85,5 +85,32 @@
     "email": "Email",
     "autoReplied": "Respuesta automática",
     "aiScore": "Puntuación IA"
+  },
+  "clients": {
+    "title": "Gestor de Clientes",
+    "subtitle": "Clientes activos y cartera de ventas",
+    "searchPlaceholder": "Buscar clientes…",
+    "stageNew": "Nuevo",
+    "stageQualified": "Calificado",
+    "stageViewing": "Visita",
+    "stageOffer": "Oferta",
+    "stageClosed": "Cerrado",
+    "ghostAlert": "cliente sin contacto en 5+ días",
+    "ghost": "Fantasma",
+    "lastContact": "Último contacto",
+    "call": "Llamar",
+    "viewProfile": "Ver perfil",
+    "noResults": "No se encontraron clientes"
+  },
+  "tasks": {
+    "title": "Gestor de Tareas",
+    "subtitle": "Tareas de IA y programación inteligente",
+    "filterAll": "Todas",
+    "filterUrgent": "🔴 Urgente",
+    "filterAI": "🤖 IA",
+    "filterDone": "✅ Listo",
+    "aiGenerated": "generadas por IA",
+    "ai": "IA",
+    "noResults": "No hay tareas que coincidan"
   }
 }

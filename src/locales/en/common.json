@@ -85,5 +85,32 @@
     "email": "Email",
     "autoReplied": "Auto-replied",
     "aiScore": "AI Score"
+  },
+  "clients": {
+    "title": "Client Manager",
+    "subtitle": "Active clients & deal pipeline",
+    "searchPlaceholder": "Search clients…",
+    "stageNew": "New",
+    "stageQualified": "Qualified",
+    "stageViewing": "Viewing",
+    "stageOffer": "Offer",
+    "stageClosed": "Closed",
+    "ghostAlert": "ghost client — no contact in 5+ days",
+    "ghost": "Ghost",
+    "lastContact": "Last contact",
+    "call": "Call",
+    "viewProfile": "View profile",
+    "noResults": "No clients found"
+  },
+  "tasks": {
+    "title": "Task Manager",
+    "subtitle": "AI-generated tasks & smart scheduling",
+    "filterAll": "All",
+    "filterUrgent": "🔴 Urgent",
+    "filterAI": "🤖 AI",
+    "filterDone": "✅ Done",
+    "aiGenerated": "AI-generated",
+    "ai": "AI",
+    "noResults": "No tasks match your filters"
   }
 }
