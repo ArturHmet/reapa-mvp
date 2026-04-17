@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, ArrowRight } from "lucide-react";
 
@@ -9,14 +9,10 @@ import { Sparkles, ArrowRight } from "lucide-react";
  * signup/page.tsx clears the key on successful signup.
  */
 export function OnboardingWelcome() {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(
+    () => typeof window !== "undefined" && !localStorage.getItem("reapa_onboarded")
+  );
   const router = useRouter();
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && !localStorage.getItem("reapa_onboarded")) {
-      setVisible(true);
-    }
-  }, []);
 
   const handleStart = () => {
     localStorage.setItem("reapa_onboarded", "1");
