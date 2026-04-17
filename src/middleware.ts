@@ -48,6 +48,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  // ADMIN-RBAC-001: role gate — non-admin authenticated users → /403
+  const isAdminPath = pathname === "/admin" || pathname.startsWith("/admin/");
+  if (session && isAdminPath) {
+    const meta        = session.user.user_metadata ?? {};
+    const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
+    const isAdmin     = meta.role === "admin" || adminEmails.includes((session.user.email ?? "").toLowerCase());
+    if (!isAdmin) {
+      return NextResponse.redirect(new URL("/403", request.url));
+    }
+  }
+
   // Already authenticated → skip auth pages
   if (session && AUTH_ROUTES.includes(pathname)) {
     return NextResponse.redirect(new URL("/", request.url));
