@@ -6,6 +6,7 @@ import { I18nProvider } from "@/lib/i18n/I18nProvider";
 import { REAPACopilot } from "@/components/REAPACopilot";
 import { PostHogProvider } from "@/components/analytics/PostHogProvider";
 import { GA4Script } from "@/components/analytics/GA4Script";
+import { ToastProvider } from "@/components/Toast";
 
 export const metadata: Metadata = {
   title: "REAPA — AI Assistant for Real Estate Agents",
@@ -36,11 +37,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <GA4Script />
         <PostHogProvider />
         <I18nProvider>
-          <ConditionalSidebar />
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 pt-16 md:pt-6">
-            {children}
-          </main>
-          <REAPACopilot />
+          <ToastProvider>
+            <ConditionalSidebar />
+            <main className="flex-1 overflow-y-auto p-4 md:p-6 pt-16 md:pt-6">
+              {children}
+            </main>
+            <REAPACopilot />
+          </ToastProvider>
         </I18nProvider>
       </body>
     </html>

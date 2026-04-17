@@ -84,7 +84,10 @@
     "whatsapp": "WhatsApp",
     "email": "Email",
     "autoReplied": "Auto-replied",
-    "aiScore": "AI Score"
+    "aiScore": "AI Score",
+    "convertToClient": "Convert to Client",
+    "converted": "Lead converted to client!",
+    "convertError": "Failed to convert lead"
   },
   "clients": {
     "title": "Client Manager",

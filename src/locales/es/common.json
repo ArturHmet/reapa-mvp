@@ -84,7 +84,10 @@
     "whatsapp": "WhatsApp",
     "email": "Email",
     "autoReplied": "Respuesta automática",
-    "aiScore": "Puntuación IA"
+    "aiScore": "Puntuación IA",
+    "convertToClient": "Convertir a cliente",
+    "converted": "¡Lead convertido a cliente!",
+    "convertError": "Error al convertir el lead"
   },
   "clients": {
     "title": "Gestor de Clientes",

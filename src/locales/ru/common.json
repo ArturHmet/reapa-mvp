@@ -84,7 +84,10 @@
     "whatsapp": "WhatsApp",
     "email": "Email",
     "autoReplied": "Авто-ответ",
-    "aiScore": "ИИ Оценка"
+    "aiScore": "ИИ Оценка",
+    "convertToClient": "Конвертировать в клиента",
+    "converted": "Лид конвертирован в клиента!",
+    "convertError": "Ошибка конвертации лида"
   },
   "clients": {
     "title": "Клиенты",
