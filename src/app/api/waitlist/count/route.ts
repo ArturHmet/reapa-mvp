@@ -1,21 +1,43 @@
 import { NextResponse } from "next/server";
+import { createAdminClient } from "@/lib/supabase/server";
 
-export const runtime = "edge";
+// BUG-037: edge runtime can't use Supabase admin client (requires Node crypto).
+// Changed to nodejs so createAdminClient() resolves correctly.
+export const runtime = "nodejs";
 
 /**
  * GET /api/waitlist/count
+ *
  * Returns the current waitlist signup count.
  * Used by Marketing + Analytics agents to track waitlist growth.
  *
  * Data source priority:
- *   1. Supabase (when connected) — query waitlist_signups table
- *   2. Notion (NOTION_API_KEY + NOTION_WAITLIST_DB_ID) — query waitlist database
- *   3. Fallback: returns placeholder
+ *   1. Supabase (primary) — query waitlist table via admin client
+ *   2. Notion (fallback)  — NOTION_API_KEY + NOTION_WAITLIST_DB_ID
+ *   3. Placeholder        — returns 0 when nothing is configured
  */
 export async function GET() {
-  // Try Notion (currently connected)
+  // ── 1. Supabase (primary) ────────────────────────────────────────────────
+  try {
+    const admin = createAdminClient();
+    const { count, error } = await admin
+      .from("waitlist")
+      .select("*", { count: "exact", head: true });
+
+    if (!error) {
+      return NextResponse.json({
+        count: count ?? 0,
+        source: "supabase",
+        timestamp: new Date().toISOString(),
+      });
+    }
+  } catch {
+    // fall through to Notion
+  }
+
+  // ── 2. Notion (fallback) ─────────────────────────────────────────────────
   const notionKey = process.env.NOTION_API_KEY;
-  const notionDb = process.env.NOTION_WAITLIST_DB_ID;
+  const notionDb  = process.env.NOTION_WAITLIST_DB_ID;
 
   if (notionKey && notionDb) {
     try {
@@ -26,17 +48,15 @@ export async function GET() {
           "Notion-Version": "2022-06-28",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ page_size: 1 }),
+        body: JSON.stringify({ page_size: 100 }),
       });
 
       if (res.ok) {
-        const data = await res.json();
-        // Notion returns total_count in some cases; otherwise count via results
-        const count = (data as { results?: unknown[] }).results?.length ?? 0;
+        const data = await res.json() as { results?: unknown[] };
         return NextResponse.json({
-          count,
+          count: data.results?.length ?? 0,
           source: "notion",
-          note: "Notion pagination limit: use ?all=1 for full count",
+          note: "Notion pagination limit 100; full count requires cursor pagination",
           timestamp: new Date().toISOString(),
         });
       }
@@ -45,7 +65,7 @@ export async function GET() {
     }
   }
 
-  // Placeholder — remove once Supabase is connected
+  // ── 3. Placeholder ───────────────────────────────────────────────────────
   return NextResponse.json({
     count: 0,
     source: "placeholder",
