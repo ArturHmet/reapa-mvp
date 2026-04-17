@@ -1,0 +1,23 @@
+# COLD-001: Keep-alive cron — pings /api/warmup every 5 min to prevent
+# Vercel Hobby cold-start latency >5s on /api/ai/chat.
+# Uses GitHub Actions (free, public repo) instead of Vercel cron (Pro only)
+# or UptimeRobot (external account). Self-contained within the repo.
+name: Keep-Alive Warmup
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # allow manual trigger for testing
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ping /api/warmup
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://reapa-mvp.vercel.app/api/warmup)
+          echo "Warmup status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "::warning::Warmup endpoint returned $STATUS"
+          fi
