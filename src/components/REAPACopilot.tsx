@@ -80,7 +80,8 @@ export function REAPACopilot() {
         <Bot size={20} />
         <span className="text-sm font-medium">REAPA Copilot</span>
       </button>
-    );
+    </div>
+  );
   }
 
   return (
