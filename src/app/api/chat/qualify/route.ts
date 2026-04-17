@@ -1,6 +1,7 @@
 // BUG-039: nodejs runtime -- edge cannot import franc-min (CJS); nodejs resolves process.env at request time
 import { NextRequest, NextResponse } from "next/server";
 import { runNLPPipeline } from "@/lib/ai/nlp-pipeline";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -31,6 +32,47 @@ function getTemperature(score: number): "hot" | "warm" | "cold" | "ice" {
   if (score >= 60) return "warm";
   if (score >= 20) return "cold";
   return "ice";
+}
+
+/** Fire-and-forget: persist completed lead to Supabase leads table. Never throws. */
+function saveLeadToSupabase(
+  state: LeadState,
+  temperature: string,
+  nlpLanguage: string,
+  nlpIntentConfidence: number,
+  nlpLeadTemperature: string,
+  nlpOverallConfidence: number,
+): void {
+  if (!state.name) return;
+  const notes = [
+    "Source: Copilot chat qualify flow",
+    `Language: ${nlpLanguage}`,
+    `Intent confidence: ${Math.round(nlpIntentConfidence * 100)}%`,
+    `NLP temperature: ${nlpLeadTemperature}`,
+    `Overall confidence: ${Math.round(nlpOverallConfidence * 100)}%`,
+    state.financing ? `Financing: ${state.financing}` : null,
+    state.timeline ? `Timeline: ${state.timeline}` : null,
+  ].filter(Boolean).join(" | ");
+
+  void createAdminClient()
+    .from("leads")
+    .insert({
+      name: state.name,
+      phone: state.phone ?? null,
+      email: state.email ?? null,
+      source: "chat",
+      score: state.score,
+      temperature: temperature === "ice" ? "cold" : temperature,
+      intent: state.intent ?? null,
+      budget_range: state.budget ?? null,
+      location: state.location ?? null,
+      notes,
+      last_contact_at: new Date().toISOString(),
+    })
+    .then(({ error }) => {
+      if (error) console.error("[qualify] Lead auto-save failed:", error.message);
+      else console.log("[qualify] Lead auto-saved:", state.name);
+    });
 }
 
 function getNextQuestion(
@@ -130,6 +172,18 @@ export async function POST(req: NextRequest) {
 
     const { message, newState, isComplete } = getNextQuestion(enriched, lastUserMessage, nlp.language);
     const temperature = getTemperature(newState.score);
+
+    // Auto-save qualified lead to Supabase (fire-and-forget, never blocks response)
+    if (isComplete) {
+      saveLeadToSupabase(
+        newState,
+        temperature,
+        nlp.language,
+        nlp.intentConfidence,
+        nlp.leadTemperature,
+        nlp.overallConfidence,
+      );
+    }
 
     return NextResponse.json({
       message, state: newState, isComplete, score: newState.score, temperature,
