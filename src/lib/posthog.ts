@@ -1,4 +1,11 @@
 "use client";
+// ─── PostHog Setup ───────────────────────────────────────────────────────────
+// To activate analytics, add NEXT_PUBLIC_POSTHOG_KEY to Vercel env variables.
+// Step-by-step: README.md → ⚙️ Environment Variables → PostHog Analytics Setup
+// Key format: phc_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+// EU endpoint used automatically (eu.posthog.com / eu.i.posthog.com).
+// A new Vercel deploy is required after setting the key — it is bundled at build time.
+// ─────────────────────────────────────────────────────────────────────────────
 /**
  * REAPA PostHog client helpers.
  * All functions are safe no-ops when NEXT_PUBLIC_POSTHOG_KEY is not set
