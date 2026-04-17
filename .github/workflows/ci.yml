@@ -37,3 +37,18 @@ jobs:
           cache: npm
       - run: npm install
       - run: npm test
+
+  deploy-production:
+    name: Deploy to Vercel (CI fallback)
+    runs-on: ubuntu-latest
+    needs: [quality, test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Deploy to production
+        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+        env:
+          VERCEL_ORG_ID: team_JNkjVg3fHn7gtXpJSinc7y6k
+          VERCEL_PROJECT_ID: prj_nsUKpSLw4D1RlrAqjGAgVTczOlwG
