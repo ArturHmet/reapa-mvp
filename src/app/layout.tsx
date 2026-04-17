@@ -9,6 +9,7 @@ import { PostHogProvider } from "@/components/analytics/PostHogProvider";
 import { GA4Script } from "@/components/analytics/GA4Script";
 import { ToastProvider } from "@/components/Toast";
 import { PageViewTracker } from "@/lib/posthog";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://reapa-mvp.vercel.app";
 
@@ -90,6 +91,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <REAPACopilot />
           </ToastProvider>
         </I18nProvider>
+        {/* GDPR cookie consent — renders client-side after hydration */}
+        <CookieConsentBanner />
       </body>
     </html>
   );
