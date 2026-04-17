@@ -1,8 +1,8 @@
 // BUG-039: nodejs runtime -- edge cannot import franc-min (CJS); nodejs resolves process.env at request time
-import { NextRequest, NextResponse } from \"next/server\";
-import { runNLPPipeline } from \"@/lib/ai/nlp-pipeline\";
+import { NextRequest, NextResponse } from "next/server";
+import { runNLPPipeline } from "@/lib/ai/nlp-pipeline";
 
-export const runtime = \"nodejs\";
+export const runtime = "nodejs";
 
 const SCORING = {
   intent: { buy: 30, sell: 30, valuation: 30, rent: 20, browse: 5 },

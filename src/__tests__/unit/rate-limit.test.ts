@@ -1,4 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
+// BUG-T005: static import for getClientId — dynamic require() doesn't resolve @ alias in Vitest
+import { getClientId } from "@/lib/rate-limit";
 
 // No SUPABASE env vars set in test environment → forces in-memory fallback path
 
@@ -89,7 +91,6 @@ describe("rateLimit (in-memory fallback)", () => {
 
 describe("getClientId", () => {
   it("extracts first IP from x-forwarded-for", () => {
-    const { getClientId } = require("@/lib/rate-limit");
     const req = new Request("http://localhost", {
       headers: { "x-forwarded-for": "1.2.3.4, 5.6.7.8" },
     });
@@ -97,13 +98,11 @@ describe("getClientId", () => {
   });
 
   it("returns ip:anon when no forwarded header", () => {
-    const { getClientId } = require("@/lib/rate-limit");
     const req = new Request("http://localhost");
     expect(getClientId(req)).toBe("ip:anon");
   });
 
   it("returns prefixed ip string", () => {
-    const { getClientId } = require("@/lib/rate-limit");
     const req = new Request("http://localhost", {
       headers: { "x-forwarded-for": "10.0.0.1" },
     });
