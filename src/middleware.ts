@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
  * Protects dashboard routes; redirects unauthenticated users to /login.
  */
 
-const PROTECTED = ["/", "/leads", "/clients", "/tasks", "/analytics"];
+const PROTECTED = ["/", "/leads", "/clients", "/tasks", "/analytics", "/admin"];
 const AUTH_ROUTES = ["/login", "/signup"];
 
 export async function middleware(request: NextRequest) {
@@ -58,6 +58,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/|waitlist|blog|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

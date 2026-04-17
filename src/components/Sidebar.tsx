@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, UserPlus, CheckSquare, BarChart3, Bot, Menu, X, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, UserPlus, CheckSquare, BarChart3, Bot, Menu, X, LogOut, Shield } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLocale } from "@/hooks/useLocale";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -16,11 +16,11 @@ export function Sidebar() {
   const [user, setUser] = useState<User | null>(null);
 
   const nav = [
-    { href: "/", label: t("nav.dashboard"), icon: LayoutDashboard },
-    { href: "/leads", label: t("nav.leads"), icon: UserPlus },
-    { href: "/clients", label: t("nav.clients"), icon: Users },
-    { href: "/tasks", label: t("nav.tasks"), icon: CheckSquare },
-    { href: "/analytics", label: t("nav.analytics"), icon: BarChart3 },
+    { href: "/",          label: t("nav.dashboard"), icon: LayoutDashboard },
+    { href: "/leads",     label: t("nav.leads"),     icon: UserPlus        },
+    { href: "/clients",   label: t("nav.clients"),   icon: Users           },
+    { href: "/tasks",     label: t("nav.tasks"),     icon: CheckSquare     },
+    { href: "/analytics", label: t("nav.analytics"), icon: BarChart3       },
   ];
 
   // Defer setState to avoid synchronous setState in useEffect (React Compiler compat)
@@ -78,7 +78,7 @@ export function Sidebar() {
           <button onClick={() => setOpen(false)} className="md:hidden ml-auto p-1 rounded-lg hover:bg-[var(--bg-card-hover)]"><X size={18} /></button>
         </div>
 
-        <nav className="flex-1 py-3 px-3 space-y-0.5 sidebar-nav">
+        <nav className="flex-1 py-3 px-3 space-y-0.5 sidebar-nav overflow-y-auto">
           {nav.map(({ href, label, icon: Icon }) => {
             const active = pathname === href;
             return (
@@ -87,6 +87,14 @@ export function Sidebar() {
               </Link>
             );
           })}
+
+          {/* Admin — separated with divider */}
+          <div className="pt-2 mt-2 border-t border-[var(--border)]">
+            <Link href="/admin"
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${pathname === "/admin" || pathname.startsWith("/admin/") ? "bg-[var(--accent)]/15 text-[var(--accent)]" : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-card-hover)]"}`}>
+              <Shield size={18} />{t("nav.admin")}
+            </Link>
+          </div>
         </nav>
 
         <div className="px-4 py-3 border-t border-[var(--border)]">
