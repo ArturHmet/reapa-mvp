@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n/config";
@@ -26,10 +26,8 @@ function detectLocale(): LangCode {
 export default function OnboardingLanguage() {
   const { t, i18n } = useTranslation();
   const router       = useRouter();
-  const [selected, setSelected] = useState<LangCode>("en");
+  const [selected, setSelected] = useState<LangCode>(() => detectLocale());
   const [saving,   setSaving]   = useState(false);
-
-  useEffect(() => { setSelected(detectLocale()); }, []);
 
   async function handleContinue() {
     setSaving(true);

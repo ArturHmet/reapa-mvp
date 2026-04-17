@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 /**
  * UX-BETA-003: Standalone 403 Forbidden page.
  * Rendered when middleware (ADMIN-RBAC-001) redirects non-admin users from /admin.
@@ -19,12 +21,12 @@ export default function ForbiddenPage() {
           </a>
           .
         </p>
-        <a
+        <Link
           href="/"
           className="px-4 py-2 bg-[var(--accent)] text-white text-sm rounded-xl hover:bg-[var(--accent-hover)] transition-colors"
         >
           Back to Dashboard
-        </a>
+        </Link>
       </div>
     </div>
   );

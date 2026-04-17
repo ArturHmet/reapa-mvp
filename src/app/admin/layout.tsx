@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
@@ -59,9 +60,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           This area is for the REAPA team only. If you believe this is an error,
           contact <a href="mailto:hello@reapa.ai" className="text-indigo-400 hover:underline">hello@reapa.ai</a>.
         </p>
-        <a href="/" className="px-4 py-2 bg-[var(--accent)] text-white text-sm rounded-xl hover:bg-[var(--accent-hover)] transition-colors">
+        <Link href="/" className="px-4 py-2 bg-[var(--accent)] text-white text-sm rounded-xl hover:bg-[var(--accent-hover)] transition-colors">
           Back to Dashboard
-        </a>
+        </Link>
       </div>
     );
   }
