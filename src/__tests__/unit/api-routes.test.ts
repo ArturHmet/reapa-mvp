@@ -354,7 +354,8 @@ describe("GET /api/dashboard", () => {
 // Without this, tests share the real in-memory limiter — sequential POSTs
 // exhaust it and later tests get 429 instead of 400/201.
 describe("POST /api/waitlist", () => {
-  const makeReq = (body: unknown, ip = "1.2.3.4") =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const makeReq = (body: unknown, ip = "1.2.3.4"): any =>
     new Request("http://localhost/api/waitlist", {
       method: "POST",
       headers: { "content-type": "application/json", "x-forwarded-for": ip },
@@ -413,7 +414,8 @@ describe("POST /api/waitlist", () => {
       headers: { "content-type": "application/json", "x-forwarded-for": "1.2.3.4" },
       body: "not-json{{{",
     });
-    expect((await POST(req)).status).toBe(400);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect((await POST(req as any)).status).toBe(400);
   });
 
   it("accepts optional name, role, language, source fields", async () => {

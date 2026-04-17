@@ -12,7 +12,8 @@ async function* textChunks(...chunks: string[]) {
 }
 
 describe("POST /api/ai/chat", () => {
-  const makeReq = (body: unknown, ip = "1.2.3.4") =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const makeReq = (body: unknown, ip = "1.2.3.4"): any =>
     new Request("http://localhost/api/ai/chat", {
       method: "POST",
       headers: { "content-type": "application/json", "x-forwarded-for": ip },
