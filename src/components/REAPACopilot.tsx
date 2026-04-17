@@ -3,20 +3,44 @@ import { useState, useRef, useEffect } from "react";
 import { captureEvent } from "@/lib/posthog";
 import { useChat, type Message } from "ai/react";
 import { X, Minimize2, Maximize2, Send, Bot } from "lucide-react";
+import { useLocale } from "@/hooks/useLocale";
 
-const QUICK_PROMPTS = [
-  "Summarize my hot leads",
-  "Draft a follow-up for a cold lead",
-  "What are today's priority tasks?",
-  "Help me write a property description",
-  "Check AML compliance checklist",
-];
+// ── Sprint 10: Malta-specific quick prompts per language ───────────────────
+// Each set is 5 real use-case prompts a Malta RE agent would actually click.
+// Language key matches SupportedLang codes from @/lib/i18n/config.
+const QUICK_PROMPTS_BY_LANG: Record<string, string[]> = {
+  en: [
+    "Draft a WhatsApp follow-up for a lead who viewed an apartment in Sliema yesterday",
+    "Write a property listing for a 3-bed penthouse in Valletta with sea views, €650K",
+    "Explain Malta's stamp duty for a €400K purchase in simple terms",
+    "Draft a rental reminder for a tenant whose lease expires in 3 days",
+    "Translate this property description into Russian for a Moscow investor",
+  ],
+  ru: [
+    "Напиши WhatsApp-сообщение для лида, который вчера смотрел квартиру в Слиме",
+    "Составь листинг для трёхбедрум пентхауса в Валетте с видом на море, €650K",
+    "Объясни просто: какой гербовый сбор на Мальте при покупке за €400K?",
+    "Напиши напоминание арендатору об окончании договора аренды через 3 дня",
+    "Переведи это описание объекта на английский для покупателя из Великобритании",
+  ],
+  es: [
+    "Redacta un WhatsApp de seguimiento para un lead que visitó un piso en Sliema ayer",
+    "Escribe un anuncio para un ático de 3 hab. en La Valeta con vistas al mar, €650K",
+    "Explica en términos simples el impuesto de transmisiones en Malta para €400K",
+    "Redacta un recordatorio de fin de contrato de alquiler para 3 días antes del vencimiento",
+    "Traduce esta descripción del inmueble al inglés para un comprador de Londres",
+  ],
+};
 
 export function REAPACopilot() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Locale — drives quick prompt language selection
+  const { lang } = useLocale();
+  const quickPrompts = QUICK_PROMPTS_BY_LANG[lang] ?? QUICK_PROMPTS_BY_LANG.en;
 
   // UX-BETA-003: First-visit nudge — show tooltip for 8s if user hasn't opened copilot yet
   const [showNudge, setShowNudge] = useState(true);
@@ -91,7 +115,7 @@ export function REAPACopilot() {
        * Tapping outside the bottom sheet dismisses the Copilot.
        *
        * Tailwind v4 note: max-[376px]: generates
-       *   @media not all and (min-width: 376px)  ⇒  width ≤ 375px
+       *   @media not all and (min-width: 376px)  ⟹  width ≤ 375px
        * Using 376 (not 375) is required to capture iPhone SE (exactly 375px).
        */}
       <div
@@ -103,7 +127,7 @@ export function REAPACopilot() {
       {/*
        * MOB-001: layout switching
        *   ≤375px → bottom sheet: 100vw × 85svh, anchored to bottom edge,
-       *            rounded top corners only, no minimize (swipe-down or ✕ to close)
+       *             rounded top corners only, no minimize (swipe-down or ✕ to close)
        *   ≥376px → original floating panel: bottom-6 right-6, w-96 h-[560px]
        */}
       <div
@@ -168,7 +192,7 @@ export function REAPACopilot() {
                     <p className="text-gray-400 text-xs mt-1">Ask me anything about your pipeline, leads, or listings.</p>
                   </div>
                   <div className="flex flex-col gap-2 w-full">
-                    {QUICK_PROMPTS.map((p) => (
+                    {quickPrompts.map((p) => (
                       <button
                         key={p}
                         onClick={() => handleQuickPrompt(p)}
