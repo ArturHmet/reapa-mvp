@@ -3,7 +3,7 @@ import { Card, Badge } from "@/components/UI";
 import { leads as mockLeads, type Lead } from "@/lib/data";
 import { formatCurrency, timeAgo } from "@/lib/utils";
 import { Search, MessageSquare, Mail, Globe, Star, Heart, Users, Zap, Phone, UserCheck } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n/config";
 import { useToast } from "@/components/Toast";
@@ -126,7 +126,7 @@ function LeadCard({
   const aiScore = lead.score === "hot" ? 95 : lead.score === "warm" ? 65 : 30;
   const whatsappHref = `https://wa.me/${lead.phone.replace(/\D/g, "")}`;
 
-  async function handleConvert(e: React.MouseEvent) {
+  async function handleConvert(e: MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
     setConverting(true);
     try {

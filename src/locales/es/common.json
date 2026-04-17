@@ -87,7 +87,8 @@
     "aiScore": "Puntuación IA",
     "convertToClient": "Convertir a cliente",
     "converted": "¡Lead convertido a cliente!",
-    "convertError": "Error al convertir el lead"
+    "convertError": "Error al convertir el lead",
+    "noResults": "No se encontraron leads"
   },
   "clients": {
     "title": "Gestor de Clientes",

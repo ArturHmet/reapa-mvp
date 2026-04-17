@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useState, ReactNode } from "react";
 import { CheckCircle, XCircle, Info, X } from "lucide-react";
 
 type ToastType = "success" | "error" | "info";
@@ -10,7 +10,7 @@ const ToastContext = createContext<ToastCtx>({ addToast: () => {} });
 
 export function useToast() { return useContext(ToastContext); }
 
-export function ToastProvider({ children }: { children: React.ReactNode }) {
+export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
   const dismiss = (id: string) => setToasts(prev => prev.filter(t => t.id !== id));

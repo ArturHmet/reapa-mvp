@@ -87,7 +87,8 @@
     "aiScore": "AI Score",
     "convertToClient": "Convert to Client",
     "converted": "Lead converted to client!",
-    "convertError": "Failed to convert lead"
+    "convertError": "Failed to convert lead",
+    "noResults": "No leads found"
   },
   "clients": {
     "title": "Client Manager",
