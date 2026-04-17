@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { getSupabaseBrowser } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Trash2, AlertTriangle, ArrowLeft } from "lucide-react";
@@ -19,7 +19,7 @@ export default function SettingsPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Failed to delete account");
       // Sign out and redirect
-      const supabase = createClient();
+      const supabase = getSupabaseBrowser();
       await supabase.auth.signOut();
       router.push("/?deleted=1");
     } catch (err) {
