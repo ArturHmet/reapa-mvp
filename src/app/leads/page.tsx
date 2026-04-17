@@ -1,9 +1,11 @@
 "use client";
-import {Card, Badge} from "@/components/UI";
-import {leads as mockLeads, type Lead} from "@/lib/data";
-import {formatCurrency, timeAgo} from "@/lib/utils";
-import {Search, MessageSquare, Mail, Globe, Star, Heart, Users, Zap, Phone} from "lucide-react";
-import {useState, useEffect} from "react";
+import { Card, Badge } from "@/components/UI";
+import { leads as mockLeads, type Lead } from "@/lib/data";
+import { formatCurrency, timeAgo } from "@/lib/utils";
+import { Search, MessageSquare, Mail, Globe, Star, Heart, Users, Zap, Phone } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import "@/lib/i18n/config";
 
 const sourceIcons: Record<string, React.ReactNode> = {
   whatsapp: <MessageSquare size={14} className="text-green-400" />,
@@ -17,6 +19,7 @@ const sourceIcons: Record<string, React.ReactNode> = {
 const scoreVariants: Record<string, "hot" | "warm" | "cold"> = { hot: "hot", warm: "warm", cold: "cold" };
 
 export default function LeadsPage() {
+  const { t } = useTranslation();
   const [leadsData, setLeadsData] = useState<Lead[]>(mockLeads);
   const [filter, setFilter] = useState<"all" | "hot" | "warm" | "cold">("all");
   const [search, setSearch] = useState("");
@@ -25,32 +28,49 @@ export default function LeadsPage() {
     fetch("/api/leads").then(r => r.json()).then(setLeadsData).catch(() => {});
   }, []);
 
+  const filterLabels: Record<string, string> = {
+    all:  t("leads.filterAll"),
+    hot:  t("leads.filterHot"),
+    warm: t("leads.filterWarm"),
+    cold: t("leads.filterCold"),
+  };
+
   const filtered = leadsData
-    .filter(l => filter === "all" || l.score === filter)
-    .filter(l => search === "" || l.name.toLowerCase().includes(search.toLowerCase()) || l.location.toLowerCase().includes(search.toLowerCase()));
+    .filter(lead => filter === "all" || lead.score === filter)
+    .filter(lead => search === "" || lead.name.toLowerCase().includes(search.toLowerCase()) || lead.location.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="max-w-7xl mx-auto space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold">Lead Engine</h1>
-          <p className="text-sm text-[var(--text-muted)]">AI-scored leads from all channels</p>
+          <h1 className="text-xl font-bold">{t("leads.title")}</h1>
+          <p className="text-sm text-[var(--text-muted)]">{t("leads.subtitle")}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="hot">{leadsData.filter(l => l.score === 'hot').length} Hot</Badge>
-          <Badge variant="warm">{leadsData.filter(l => l.score === 'warm').length} Warm</Badge>
-          <Badge variant="cold">{leadsData.filter(l => l.score === 'cold').length} Cold</Badge>
+          <Badge variant="hot">{leadsData.filter(lead => lead.score === "hot").length} {t("leads.filterHot")}</Badge>
+          <Badge variant="warm">{leadsData.filter(lead => lead.score === "warm").length} {t("leads.filterWarm")}</Badge>
+          <Badge variant="cold">{leadsData.filter(lead => lead.score === "cold").length} {t("leads.filterCold")}</Badge>
         </div>
       </div>
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <div className="relative flex-1 sm:max-w-sm">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
-          <input type="text" placeholder="Search leads..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-lg text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]" />
+          <input
+            type="text"
+            placeholder={t("leads.searchPlaceholder")}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-lg text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+          />
         </div>
         <div className="flex bg-[var(--bg-card)] border border-[var(--border)] rounded-lg overflow-hidden self-start">
           {(["all", "hot", "warm", "cold"] as const).map(f => (
-            <button key={f} onClick={() => setFilter(f)} className={`px-3 py-2 text-xs font-medium transition-colors ${filter === f ? "bg-[var(--accent)]/20 text-[var(--accent)]" : "text-[var(--text-muted)] hover:text-[var(--text)]"}`}>
-              {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-2 text-xs font-medium transition-colors ${filter === f ? "bg-[var(--accent)]/20 text-[var(--accent)]" : "text-[var(--text-muted)] hover:text-[var(--text)]"}`}
+            >
+              {filterLabels[f]}
             </button>
           ))}
         </div>
@@ -63,25 +83,30 @@ export default function LeadsPage() {
 }
 
 function LeadCard({ lead }: { lead: Lead }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   return (
     <Card className="hover:border-[var(--accent)]/30 transition-colors cursor-pointer" onClick={() => setExpanded(!expanded)}>
       <div className="flex items-start gap-3 md:gap-4">
-        <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${lead.score === 'hot' ? 'bg-gradient-to-br from-red-500 to-orange-500' : lead.score === 'warm' ? 'bg-gradient-to-br from-orange-500 to-yellow-500' : 'bg-gradient-to-br from-blue-500 to-cyan-500'}`}>
-          {lead.name.split(' ').map(n => n[0]).join('')}
+        <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${lead.score === "hot" ? "bg-gradient-to-br from-red-500 to-orange-500" : lead.score === "warm" ? "bg-gradient-to-br from-orange-500 to-yellow-500" : "bg-gradient-to-br from-blue-500 to-cyan-500"}`}>
+          {lead.name.split(" ").map(n => n[0]).join("")}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
             <span className="font-medium text-sm">{lead.name}</span>
             <Badge variant={scoreVariants[lead.score]}>{lead.score.toUpperCase()}</Badge>
             <span className="hidden sm:flex items-center gap-1">{sourceIcons[lead.source]}<span className="text-[10px] text-[var(--text-muted)]">{lead.source}</span></span>
-            {lead.autoReplied && <span className="hidden sm:flex items-center gap-1 text-[10px] text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded"><Zap size={10} /> Auto-replied</span>}
+            {lead.autoReplied && (
+              <span className="hidden sm:flex items-center gap-1 text-[10px] text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded">
+                <Zap size={10} /> {t("leads.autoReplied")}
+              </span>
+            )}
           </div>
           <div className="text-[11px] text-[var(--text-muted)] flex items-center gap-1 sm:gap-2 mb-2 flex-wrap">
-            <span>{lead.nationality}</span><span>•</span><span>{formatCurrency(lead.budget)}</span>
-            <span className="hidden sm:inline">•</span><span className="hidden sm:inline">{lead.bedrooms}BR {lead.propertyType}</span>
-            <span className="hidden md:inline">•</span><span className="hidden md:inline">{lead.location}</span>
-            <span className="hidden md:inline">•</span><span className="hidden md:inline">{timeAgo(lead.createdAt)}</span>
+            <span>{lead.nationality}</span><span>&bull;</span><span>{formatCurrency(lead.budget)}</span>
+            <span className="hidden sm:inline">&bull;</span><span className="hidden sm:inline">{lead.bedrooms}BR {lead.propertyType}</span>
+            <span className="hidden md:inline">&bull;</span><span className="hidden md:inline">{lead.location}</span>
+            <span className="hidden md:inline">&bull;</span><span className="hidden md:inline">{timeAgo(lead.createdAt)}</span>
           </div>
           <p className="text-xs text-[var(--text-muted)] truncate sm:whitespace-normal">&quot;{lead.message}&quot;</p>
           {expanded && (
@@ -91,22 +116,28 @@ function LeadCard({ lead }: { lead: Lead }) {
                 <span className="text-[var(--text-muted)]">📧 {lead.email}</span>
               </div>
               <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-lg p-3">
-                <div className="text-[10px] text-indigo-400 font-medium mb-1">🤖 AI Notes</div>
+                <div className="text-[10px] text-indigo-400 font-medium mb-1">{t("leads.aiNotes")}</div>
                 <div className="text-xs">{lead.notes}</div>
               </div>
               <div className="flex flex-wrap gap-2">
-                <button className="px-3 py-1.5 bg-[var(--accent)] text-white text-xs rounded-lg hover:bg-[var(--accent-hover)] transition-colors flex items-center gap-1"><Phone size={12} /> Call Now</button>
-                <button className="px-3 py-1.5 bg-[var(--bg)] text-[var(--text)] text-xs rounded-lg border border-[var(--border)] hover:bg-[var(--bg-card-hover)] transition-colors flex items-center gap-1"><MessageSquare size={12} /> WhatsApp</button>
-                <button className="px-3 py-1.5 bg-[var(--bg)] text-[var(--text)] text-xs rounded-lg border border-[var(--border)] hover:bg-[var(--bg-card-hover)] transition-colors flex items-center gap-1"><Mail size={12} /> Email</button>
+                <button className="px-3 py-1.5 bg-[var(--accent)] text-white text-xs rounded-lg hover:bg-[var(--accent-hover)] transition-colors flex items-center gap-1">
+                  <Phone size={12} /> {t("leads.callNow")}
+                </button>
+                <button className="px-3 py-1.5 bg-[var(--bg)] text-[var(--text)] text-xs rounded-lg border border-[var(--border)] hover:bg-[var(--bg-card-hover)] transition-colors flex items-center gap-1">
+                  <MessageSquare size={12} /> {t("leads.whatsapp")}
+                </button>
+                <button className="px-3 py-1.5 bg-[var(--bg)] text-[var(--text)] text-xs rounded-lg border border-[var(--border)] hover:bg-[var(--bg-card-hover)] transition-colors flex items-center gap-1">
+                  <Mail size={12} /> {t("leads.email")}
+                </button>
               </div>
             </div>
           )}
         </div>
         <div className="text-right flex-shrink-0">
-          <div className={`text-lg font-bold ${lead.score === 'hot' ? 'text-red-400' : lead.score === 'warm' ? 'text-orange-400' : 'text-blue-400'}`}>
-            {lead.score === 'hot' ? '95' : lead.score === 'warm' ? '65' : '30'}
+          <div className={`text-lg font-bold ${lead.score === "hot" ? "text-red-400" : lead.score === "warm" ? "text-orange-400" : "text-blue-400"}`}>
+            {lead.score === "hot" ? "95" : lead.score === "warm" ? "65" : "30"}
           </div>
-          <div className="text-[10px] text-[var(--text-muted)]">AI Score</div>
+          <div className="text-[10px] text-[var(--text-muted)]">{t("leads.aiScore")}</div>
         </div>
       </div>
     </Card>
