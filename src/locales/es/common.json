@@ -111,6 +111,11 @@
     "filterDone": "✅ Listo",
     "aiGenerated": "generadas por IA",
     "ai": "IA",
-    "noResults": "No hay tareas que coincidan"
+    "noResults": "No hay tareas que coincidan",
+    "newTask": "Nueva tarea",
+    "cancel": "Cancelar",
+    "create": "Crear",
+    "creating": "Creando…",
+    "titlePlaceholder": "Título de tarea…"
   }
 }

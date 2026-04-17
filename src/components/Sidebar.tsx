@@ -8,22 +8,44 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getSupabaseBrowser, isSupabaseConfigured } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
+function Badge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="ml-auto text-[9px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-full min-w-[17px] text-center leading-snug tabular-nums">
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
 export function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const { t } = useLocale();
-  const [user, setUser] = useState<User | null>(null);
+  const router   = useRouter();
+  const [open, setOpen]             = useState(false);
+  const { t }                       = useLocale();
+  const [user, setUser]             = useState<User | null>(null);
+  const [hotLeads, setHotLeads]     = useState(0);
+  const [pendingTasks, setPending]  = useState(0);
+
+  // ── live badge counts ──────────────────────────────────────────────────────
+  useEffect(() => {
+    fetch("/api/dashboard")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (!d) return;
+        setHotLeads(d.hotLeads || 0);
+        setPending((d.pendingTasks || 0) + (d.overdueTasks || 0));
+      })
+      .catch(() => {});
+  }, [pathname]); // refetch when route changes to keep counts fresh
 
   const nav = [
-    { href: "/",          label: t("nav.dashboard"), icon: LayoutDashboard },
-    { href: "/leads",     label: t("nav.leads"),     icon: UserPlus        },
-    { href: "/clients",   label: t("nav.clients"),   icon: Users           },
-    { href: "/tasks",     label: t("nav.tasks"),     icon: CheckSquare     },
-    { href: "/analytics", label: t("nav.analytics"), icon: BarChart3       },
+    { href: "/",          label: t("nav.dashboard"), icon: LayoutDashboard, badge: 0          },
+    { href: "/leads",     label: t("nav.leads"),     icon: UserPlus,        badge: hotLeads   },
+    { href: "/clients",   label: t("nav.clients"),   icon: Users,           badge: 0          },
+    { href: "/tasks",     label: t("nav.tasks"),     icon: CheckSquare,     badge: pendingTasks },
+    { href: "/analytics", label: t("nav.analytics"), icon: BarChart3,       badge: 0          },
   ];
 
-  // Defer setState to avoid synchronous setState in useEffect (React Compiler compat)
   useEffect(() => {
     const id = setTimeout(() => setOpen(false), 0);
     return () => clearTimeout(id);
@@ -52,7 +74,7 @@ export function Sidebar() {
   }
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Agent Demo";
-  const initials = displayName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
+  const initials    = displayName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
     <>
@@ -79,11 +101,14 @@ export function Sidebar() {
         </div>
 
         <nav className="flex-1 py-3 px-3 space-y-0.5 sidebar-nav overflow-y-auto">
-          {nav.map(({ href, label, icon: Icon }) => {
+          {nav.map(({ href, label, icon: Icon, badge }) => {
             const active = pathname === href;
             return (
-              <Link key={href} href={href} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${active ? "bg-[var(--accent)]/15 text-[var(--accent)]" : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-card-hover)]"}`}>
-                <Icon size={18} />{label}
+              <Link key={href} href={href}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${active ? "bg-[var(--accent)]/15 text-[var(--accent)]" : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-card-hover)]"}`}>
+                <Icon size={18} />
+                {label}
+                <Badge count={badge} />
               </Link>
             );
           })}

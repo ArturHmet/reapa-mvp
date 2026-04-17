@@ -111,6 +111,11 @@
     "filterDone": "✅ Готово",
     "aiGenerated": "от ИИ",
     "ai": "ИИ",
-    "noResults": "Нет задач по фильтрам"
+    "noResults": "Нет задач по фильтрам",
+    "newTask": "Новая задача",
+    "cancel": "Отмена",
+    "create": "Создать",
+    "creating": "Создание…",
+    "titlePlaceholder": "Название задачи…"
   }
 }

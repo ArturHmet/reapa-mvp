@@ -57,3 +57,42 @@ export async function GET() {
     return NextResponse.json([], { status: 500 });
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json() as {
+      title:        string;
+      priority?:    string;
+      type?:        string;
+      due_at?:      string | null;
+      description?: string | null;
+      ai_generated?: boolean;
+    };
+
+    if (!body.title?.trim()) {
+      return NextResponse.json({ error: "title is required" }, { status: 400 });
+    }
+
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("tasks")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .insert({
+        title:        body.title.trim(),
+        priority:     body.priority     || "medium",
+        type:         body.type         || "other",
+        status:       "pending",
+        due_at:       body.due_at       || null,
+        description:  body.description  || null,
+        ai_generated: body.ai_generated ?? false,
+      } as any)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return NextResponse.json(data, { status: 201 });
+  } catch (err) {
+    console.error("[POST /api/tasks]", err);
+    return NextResponse.json({ error: "Failed to create task" }, { status: 500 });
+  }
+}

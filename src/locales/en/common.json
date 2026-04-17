@@ -111,6 +111,11 @@
     "filterDone": "✅ Done",
     "aiGenerated": "AI-generated",
     "ai": "AI",
-    "noResults": "No tasks match your filters"
+    "noResults": "No tasks match your filters",
+    "newTask": "New Task",
+    "cancel": "Cancel",
+    "create": "Create",
+    "creating": "Creating…",
+    "titlePlaceholder": "Task title…"
   }
 }
