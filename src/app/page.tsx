@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n/config";
+import { useRouter } from "next/navigation";
+import { getSupabaseBrowser } from "@/lib/supabase/client";
 import { Card, Badge, StatCard, ProgressBar } from "@/components/UI";
 import { dashboardStats as mockStats, tasks as mockTasks, leads as mockLeads, funnelData as mockFunnel, leadSourceData as mockSourceData } from "@/lib/data";
 import { formatCurrency } from "@/lib/utils";

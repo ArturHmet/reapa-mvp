@@ -2,7 +2,7 @@
 import { Card, Badge } from "@/components/UI";
 import { leads as mockLeads, type Lead } from "@/lib/data";
 import { formatCurrency, timeAgo } from "@/lib/utils";
-import { Search, MessageSquare, Mail, Globe, Star, Heart, Users, Zap, Phone, UserCheck } from "lucide-react";
+import { Search, MessageSquare, Mail, Globe, Star, Heart, Users, Zap, Phone, UserCheck, UserPlus } from "lucide-react";
 import { useState, useEffect, MouseEvent, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n/config";
