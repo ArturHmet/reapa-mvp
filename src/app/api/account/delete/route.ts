@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import type { CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 /**
@@ -27,7 +28,7 @@ export async function DELETE() {
       {
         cookies: {
           getAll() { return cookieStore.getAll(); },
-          setAll(cookiesToSet) {
+          setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
             try {
               cookiesToSet.forEach(({ name, value, options }) =>
                 cookieStore.set(name, value, options)
@@ -51,12 +52,12 @@ export async function DELETE() {
     const tables = ["tasks", "clients", "leads", "rate_limits"] as const;
     for (const table of tables) {
       // Suppress errors — table may not exist for this user or column may differ
-      await supabase.from(table).delete().eq("user_id", userId).throwOnError().catch(() => {});
+      try { await supabase.from(table).delete().eq("user_id", userId).throwOnError(); } catch {}
     }
 
     // Waitlist by email
     if (userEmail) {
-      await supabase.from("waitlist").delete().eq("email", userEmail).catch(() => {});
+      try { await supabase.from("waitlist").delete().eq("email", userEmail).throwOnError(); } catch {}
     }
 
     // ── 3. Delete auth user (requires service-role key) ───────────────────────
