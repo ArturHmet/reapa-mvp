@@ -1,6 +1,8 @@
 /**
  * Supabase database type stubs — aligned with actual project schema.
  * Tables: agents, leads, clients, tasks, rate_limits, waitlist
+ *
+ * Sprint 11: waitlist extended with referral_code + referred_by + name + role + language
  */
 export interface Database {
   public: {
@@ -60,16 +62,31 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["tasks"]["Insert"]>;
       };
       rate_limits: {
-        Row: {
-          id: string; key: string; count: number;
-          window_start: string; created_at: string;
-        };
-        Insert: Omit<Database["public"]["Tables"]["rate_limits"]["Row"], "id" | "created_at">;
-        Update: Partial<Database["public"]["Tables"]["rate_limits"]["Insert"]>;
+        Row: { key: string; count: number; window_start: string; };
+        Insert: Omit<Database["public"]["Tables"]["rate_limits"]["Row"], "window_start">;
+        Update: Partial<Database["public"]["Tables"]["rate_limits"]["Row"]>;
       };
+      /**
+       * waitlist table — Sprint 11: extended with referral tracking fields.
+       *
+       * DB migration required (run once via Supabase SQL editor):
+       * ── see supabase/migrations/20260418_waitlist_referral.sql ──
+       */
       waitlist: {
-        Row: { id: string; email: string; created_at: string; };
-        Insert: Pick<Database["public"]["Tables"]["waitlist"]["Row"], "email">;
+        Row: {
+          id: string;
+          email: string;
+          name: string | null;
+          role: string | null;
+          language: string;
+          /** Unique 6-char invite code for this registrant (e.g. "ABCD12") */
+          referral_code: string | null;
+          /** referral_code of the person who invited this registrant */
+          referred_by: string | null;
+          created_at: string;
+        };
+        Insert: Pick<Database["public"]["Tables"]["waitlist"]["Row"], "email"> &
+          Partial<Omit<Database["public"]["Tables"]["waitlist"]["Row"], "id" | "created_at">>;
         Update: Partial<Database["public"]["Tables"]["waitlist"]["Insert"]>;
       };
     };
