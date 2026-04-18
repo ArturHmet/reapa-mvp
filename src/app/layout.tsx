@@ -5,6 +5,7 @@ import "@/styles/rtl.css";
 import { ConditionalSidebar } from "@/components/ConditionalSidebar";
 import { I18nProvider } from "@/lib/i18n/I18nProvider";
 import { REAPACopilot } from "@/components/REAPACopilot";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PostHogProvider } from "@/components/analytics/PostHogProvider";
 import { GA4Script } from "@/components/analytics/GA4Script";
 import { ToastProvider } from "@/components/Toast";
@@ -88,7 +89,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main className="flex-1 overflow-y-auto p-4 md:p-6 pt-16 md:pt-6">
               {children}
             </main>
+            <ErrorBoundary label="REAPACopilot">
             <REAPACopilot />
+          </ErrorBoundary>
           </ToastProvider>
         </I18nProvider>
         {/* GDPR cookie consent — renders client-side after hydration */}
