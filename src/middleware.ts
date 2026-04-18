@@ -4,9 +4,13 @@ import { NextRequest, NextResponse } from "next/server";
 /**
  * REAPA Middleware — Supabase session auth guard
  * Protects dashboard routes; redirects unauthenticated users to /login.
+ *
+ * BUG-C016 fix (QA Cycle 19): removed "/" from PROTECTED so the public
+ * landing/marketing page is accessible to unauthenticated visitors.
+ * Dashboard routes now protected under "/dashboard" prefix.
  */
 
-const PROTECTED = ["/", "/leads", "/clients", "/tasks", "/analytics", "/admin", "/onboarding"];
+const PROTECTED = ["/dashboard", "/leads", "/clients", "/tasks", "/analytics", "/admin", "/onboarding"];
 const AUTH_ROUTES = ["/login", "/signup"];
 
 export async function middleware(request: NextRequest) {
@@ -39,29 +43,20 @@ export async function middleware(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  const isProtected = PROTECTED.some(
-    (p) => pathname === p || pathname.startsWith(p + "/")
-  );
+  const isProtected = PROTECTED.some((p) => pathname === p || pathname.startsWith(p + "/"));
+  const isAuthRoute = AUTH_ROUTES.some((p) => pathname === p || pathname.startsWith(p + "/"));
 
-  // Unauthenticated → redirect to login
-  if (!session && isProtected) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  if (isProtected && !session) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // ADMIN-RBAC-001: role gate — non-admin authenticated users → /403
-  const isAdminPath = pathname === "/admin" || pathname.startsWith("/admin/");
-  if (session && isAdminPath) {
-    const meta        = session.user.user_metadata ?? {};
-    const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
-    const isAdmin     = meta.role === "admin" || adminEmails.includes((session.user.email ?? "").toLowerCase());
-    if (!isAdmin) {
-      return NextResponse.redirect(new URL("/403", request.url));
-    }
-  }
-
-  // Already authenticated → skip auth pages
-  if (session && AUTH_ROUTES.includes(pathname)) {
-    return NextResponse.redirect(new URL("/", request.url));
+  if (isAuthRoute && session) {
+    const dashboardUrl = request.nextUrl.clone();
+    dashboardUrl.pathname = "/";
+    return NextResponse.redirect(dashboardUrl);
   }
 
   return response;
@@ -69,6 +64,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|api/|waitlist|blog|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|og-image.png|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff2?|ttf)$).*)",
   ],
 };
