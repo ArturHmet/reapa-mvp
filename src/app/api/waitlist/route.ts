@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     const { error } = await supabase
       .from("waitlist")
       .upsert(
-        { email, name, role, language, source, referred_by } as Record<string, unknown>,
+        { email, name, role, language, source, referred_by } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
         { onConflict: "email" }
       );
 
