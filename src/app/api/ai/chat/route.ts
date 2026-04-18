@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ── BUG-015/BUG-042: Auth (log-only — enforcement in v1.1) ───────────────
+  // ── Auth (log-only — enforcement in v1.1) ────────────────────────────────
   checkAuth(req);
 
   // ── Input validation ──────────────────────────────────────────────────────
@@ -108,9 +108,9 @@ export async function POST(req: NextRequest) {
     console.warn("[ai/chat] NLP pipeline failed (non-fatal):", e);
   }
 
-  const rateLimitHeaders = { "X-RateLimit-Remaining": String(rl.remaining) };
-
-  // ── BUG-018/BUG-019: Gemini 2.5 Flash via @ai-sdk/google ─────────────────
+  // ── Gemini 2.5 Flash via @ai-sdk/google ──────────────────────────────────
+  // BUG-018/BUG-019/BUG-044: use toDataStreamResponse() so useChat (ai/react)
+  // receives the AI SDK data stream protocol it expects — NOT custom SSE.
   const geminiKey = process.env.GEMINI_API_KEY;
   if (!geminiKey) {
     return NextResponse.json(
@@ -128,28 +128,7 @@ export async function POST(req: NextRequest) {
     temperature: 0.7,
   });
 
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream({
-    async start(controller) {
-      try {
-        for await (const chunk of result.textStream) {
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ text: chunk })}\n\n`)
-          );
-        }
-        controller.close();
-      } catch (e) {
-        controller.error(e);
-      }
-    },
-  });
-
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      Connection: "keep-alive",
-      ...rateLimitHeaders,
-    },
+  return result.toDataStreamResponse({
+    headers: { "X-RateLimit-Remaining": String(rl.remaining) },
   });
 }
