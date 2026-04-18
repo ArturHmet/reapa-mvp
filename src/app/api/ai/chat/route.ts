@@ -8,7 +8,7 @@ import { streamText } from "ai";
 // BUG-039/BUG-037: nodejs runtime — process.env resolved at runtime
 export const runtime = "nodejs";
 
-// ── Input validation ────────────────────────────────────────────────────────
+// ── Input validation ──────────────────────────────────────────────────────────
 interface ChatMessage { role: "user" | "assistant"; content: string; }
 
 function validateInput(body: unknown): { messages: ChatMessage[] } | null {
@@ -27,23 +27,19 @@ function validateInput(body: unknown): { messages: ChatMessage[] } | null {
 }
 
 // ── BUG-015/BUG-042: Auth — enforcement deferred to v1.1 ─────────────────────
-// /api/ai/chat is public-facing (chat widget). REAPA_API_KEY cannot be sent
-// client-side safely. Server-to-server auth activates in v1.1 (Supabase JWT).
-// Rate limiting (BUG-016) is the primary abuse defence until then.
 function checkAuth(req: NextRequest): boolean {
   if (process.env.REAPA_API_KEY && process.env.NODE_ENV === "production") {
     const provided =
       req.headers.get("x-api-key") ??
       req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
     if (!provided) {
-      // Log unauthenticated requests for monitoring — do NOT block (public widget)
       console.info("[ai/chat] unauthenticated public request — allowed (enforcement deferred to v1.1)");
     }
   }
-  return true; // always allow until Supabase JWT session check is wired in v1.1
+  return true;
 }
 
-// ── Stage 5: NLP context builder ────────────────────────────────────────────
+// ── Stage 5: NLP context builder ──────────────────────────────────────────────
 interface NLPEntity { value: string; }
 interface NLPResult {
   language: string; intent: string; intentConfidence: number;
@@ -68,7 +64,7 @@ function buildNLPContext(nlp: NLPResult): string {
 }
 
 export async function POST(req: NextRequest) {
-  // ── BUG-016: Distributed rate limiting via Supabase RPC ─────────────────
+  // ── BUG-016: Distributed rate limiting via Supabase RPC ──────────────────
   const clientId = getClientId(req);
   const rl = await rateLimit(clientId, { maxRequests: 20, windowMs: 60_000 });
   if (!rl.allowed) {
@@ -85,9 +81,9 @@ export async function POST(req: NextRequest) {
   }
 
   // ── BUG-015/BUG-042: Auth (log-only — enforcement in v1.1) ───────────────
-  checkAuth(req); // always returns true; never blocks
+  checkAuth(req);
 
-  // ── Input validation ─────────────────────────────────────────────────────
+  // ── Input validation ──────────────────────────────────────────────────────
   let body: unknown;
   try { body = await req.json(); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
@@ -103,7 +99,7 @@ export async function POST(req: NextRequest) {
   const { messages } = validated;
   const lastUserMessage = messages.findLast((m) => m.role === "user")?.content ?? "";
 
-  // ── Stage 5: NLP pipeline → system prompt enrichment ────────────────────
+  // ── Stage 5: NLP pipeline → system prompt enrichment ─────────────────────
   let systemPrompt = REAPA_SYSTEM_PROMPT();
   try {
     const nlp = await runNLPPipeline(lastUserMessage);
@@ -114,80 +110,46 @@ export async function POST(req: NextRequest) {
 
   const rateLimitHeaders = { "X-RateLimit-Remaining": String(rl.remaining) };
 
-  // ── BUG-018: Gemini via @ai-sdk/google (replaces brittle SSE parser) ─────
+  // ── BUG-018/BUG-019: Gemini 2.5 Flash via @ai-sdk/google ─────────────────
   const geminiKey = process.env.GEMINI_API_KEY;
-  if (geminiKey) {
-    try {
-      const googleAI = createGoogleGenerativeAI({ apiKey: geminiKey });
-      // BUG-019: maxTokens raised 1024 → 4096 (supports listing copy, compliance docs)
-      const result = streamText({
-        model: googleAI("gemini-2.5-flash"),
-        system: systemPrompt,
-        messages: messages.map((m) => ({ role: m.role, content: m.content })),
-        maxTokens: 4096,
-        temperature: 0.7,
-      });
-
-      // Transform SDK textStream → existing data: {"text":"..."} SSE format
-      const encoder = new TextEncoder();
-      const stream = new ReadableStream({
-        async start(controller) {
-          try {
-            for await (const chunk of result.textStream) {
-              controller.enqueue(
-                encoder.encode(`data: ${JSON.stringify({ text: chunk })}\n\n`)
-              );
-            }
-            controller.close();
-          } catch (e) {
-            controller.error(e);
-          }
-        },
-      });
-
-      return new Response(stream, {
-        headers: {
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          Connection: "keep-alive",
-          ...rateLimitHeaders,
-        },
-      });
-    } catch (e) {
-      console.warn("[ai/chat] Gemini failed, trying Groq:", e);
-    }
+  if (!geminiKey) {
+    return NextResponse.json(
+      { error: "No AI provider configured. Set GEMINI_API_KEY." },
+      { status: 503 }
+    );
   }
 
-  // ── Groq Llama fallback ──────────────────────────────────────────────────
-  const groqKey = process.env.GROQ_API_KEY;
-  if (groqKey) {
-    try {
-      const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${groqKey}` },
-        body: JSON.stringify({
-          model: "llama-3.1-70b-versatile",
-          messages: [{ role: "system", content: systemPrompt }, ...messages],
-          max_tokens: 4096, // BUG-019
-          temperature: 0.7,
-          stream: true,
-        }),
-      });
-      if (!groqRes.ok || !groqRes.body) throw new Error(`Groq ${groqRes.status}`);
-      return new Response(groqRes.body, {
-        headers: {
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          ...rateLimitHeaders,
-        },
-      });
-    } catch (e) {
-      console.warn("[ai/chat] Groq failed:", e);
-    }
-  }
+  const googleAI = createGoogleGenerativeAI({ apiKey: geminiKey });
+  const result = streamText({
+    model: googleAI("gemini-2.5-flash"),
+    system: systemPrompt,
+    messages: messages.map((m) => ({ role: m.role, content: m.content })),
+    maxTokens: 4096,
+    temperature: 0.7,
+  });
 
-  return NextResponse.json(
-    { error: "No AI provider configured. Set GEMINI_API_KEY or GROQ_API_KEY." },
-    { status: 503 }
-  );
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        for await (const chunk of result.textStream) {
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ text: chunk })}\n\n`)
+          );
+        }
+        controller.close();
+      } catch (e) {
+        controller.error(e);
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+      ...rateLimitHeaders,
+    },
+  });
 }
