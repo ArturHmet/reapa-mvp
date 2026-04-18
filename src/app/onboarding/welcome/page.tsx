@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n/config";
@@ -14,8 +15,15 @@ export default function OnboardingWelcome() {
   const { t } = useTranslation();
   const router  = useRouter();
 
+  // Sprint 11 — funnel step 1 viewed
+  useEffect(() => {
+    captureEvent("onboarding_step_viewed", { step: 1 });
+  }, []);
+
   function handleGetStarted() {
     captureEvent("onboarding_screen1_cta");
+    // Sprint 11 — funnel step 1 completed
+    captureEvent("onboarding_step_completed", { step: 1 });
     router.push("/onboarding/language");
   }
 
