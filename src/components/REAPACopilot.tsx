@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { captureEvent } from "@/lib/posthog";
 import { useChat, type Message } from "ai/react";
-import { X, Minimize2, Maximize2, Send, Bot } from "lucide-react";
+import { X, Minimize2, Maximize2, Send, Bot, MessageCircle } from "lucide-react";
 import { useLocale } from "@/hooks/useLocale";
 
 // ── Sprint 10: Malta-specific quick prompts per language ───────────────────
@@ -35,11 +35,23 @@ const QUICK_PROMPTS_BY_LANG: Record<string, string[]> = {
 export function REAPACopilot() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  // Sprint 11: WhatsApp CTA — show after lead saved or 3+ messages
+  const [leadSaved, setLeadSaved] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Locale — drives quick prompt language selection
   const { lang } = useLocale();
+
+  // Sprint 11: check localStorage for reapa_lead_saved flag (set by onboarding)
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined" && localStorage.getItem("reapa_lead_saved") === "true") {
+        setLeadSaved(true);
+      }
+    } catch { /* private browsing */ }
+  }, []);
+
   const quickPrompts = QUICK_PROMPTS_BY_LANG[lang] ?? QUICK_PROMPTS_BY_LANG.en;
 
   // UX-BETA-003: First-visit nudge — show tooltip for 8s if user hasn't opened copilot yet
@@ -244,7 +256,22 @@ export function REAPACopilot() {
                   </div>
                 </div>
               )}
-              <div ref={bottomRef} />
+              {/* Sprint 11: WhatsApp CTA — visible after lead saved or 3+ messages */}
+            {(leadSaved || messages.length >= 3) && process.env.NEXT_PUBLIC_WHATSAPP_NUMBER && (
+              <div className="flex justify-center py-1">
+                <a
+                  href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-3 py-2 bg-green-600/20 hover:bg-green-600/30 border border-green-600/30 rounded-xl text-xs font-medium text-green-400 transition-colors"
+                  onClick={() => captureEvent("whatsapp_cta_clicked", { context: "copilot" })}
+                >
+                  <MessageCircle size={13} />
+                  Chat with us on WhatsApp
+                </a>
+              </div>
+            )}
+            <div ref={bottomRef} />
             </div>
 
             {/*
