@@ -2,31 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { rateLimit, getClientId } from "@/lib/rate-limit";
 
-/** Generate a 6-character alphanumeric referral code. */
 function generateCode(): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I confusion
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "";
-  for (let i = 0; i < 6; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
+  for (let i = 0; i < 6; i++) { code += chars[Math.floor(Math.random() * chars.length)]; }
   return code;
 }
 
-/**
- * POST /api/referral/generate
- * Body: { email: string }
- * Returns: { referral_code: string, invite_url: string }
- *
- * Idempotent — if the email already has a referral_code, returns the existing one.
- */
 export async function POST(req: NextRequest) {
   const clientId = getClientId(req);
   const rl = await rateLimit(clientId, { maxRequests: 10, windowMs: 3_600_000 });
   if (!rl.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests" },
-      { status: 429, headers: { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) } }
-    );
+    return NextResponse.json({ error: "Too many requests" }, { status: 429, headers: { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) } });
   }
 
   let body: unknown;
@@ -44,8 +31,6 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = createAdminClient();
 
-    // Check if this email already has a code
-    // Cast required: Supabase TS types don't yet include Sprint 11 referral columns
     const existing = ((await supabase
       .from("waitlist")
       .select("referral_code")
@@ -57,7 +42,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ referral_code: existing.referral_code, invite_url: inviteUrl });
     }
 
-    // Generate a unique code (retry up to 3 times on collision)
     let code = "";
     for (let attempt = 0; attempt < 3; attempt++) {
       const candidate = generateCode();
@@ -72,10 +56,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Could not generate unique code" }, { status: 500 });
     }
 
-    // Upsert the code onto the row (create row if needed)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await supabase
       .from("waitlist")
-      .upsert({ email, referral_code: code }, { onConflict: "email" });
+      .upsert({ email, referral_code: code } as any, { onConflict: "email" });
 
     if (error) throw error;
 
