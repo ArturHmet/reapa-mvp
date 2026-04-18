@@ -23,111 +23,90 @@ export async function POST(req: NextRequest) {
   }
 
   const b = body as Record<string, unknown>;
-  const email = typeof b.email === "string" ? b.email.toLowerCase().trim() : "";
-  const name = typeof b.name === "string" ? b.name.trim() || undefined : undefined;
-  const role = typeof b.role === "string" ? b.role : undefined;
-  const language = typeof b.language === "string" ? b.language : "en";
-  const source = typeof b.source === "string" ? b.source : undefined;
+  const email      = typeof b.email      === "string" ? b.email.toLowerCase().trim()  : "";
+  const name       = typeof b.name       === "string" ? b.name.trim() || undefined     : undefined;
+  const role       = typeof b.role       === "string" ? b.role                         : undefined;
+  const language   = typeof b.language   === "string" ? b.language                     : "en";
+  const source     = typeof b.source     === "string" ? b.source                       : undefined;
+  // Sprint 11: referral tracking
+  const referred_by = typeof b.referred_by === "string" ? b.referred_by.toUpperCase().trim() || undefined : undefined;
 
-  if (!email || !isValidEmail(email)) {
-    return NextResponse.json({ error: "Valid email required" }, { status: 400 });
+  if (!email) {
+    return NextResponse.json({ error: "email is required" }, { status: 400 });
+  }
+  if (!isValidEmail(email)) {
+    return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
   }
 
   try {
-    const admin = createAdminClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (admin as any)
+    const supabase = createAdminClient();
+
+    const { error } = await supabase
       .from("waitlist")
       .upsert(
-        { email, name, role, language, source },
-        { onConflict: "email", ignoreDuplicates: true }
+        { email, name, role, language, source, referred_by } as Record<string, unknown>,
+        { onConflict: "email" }
       );
-    if (error) throw error;
 
-    // ── Waitlist confirmation email (Resend) ─────────────────────────────────
-    // Graceful no-op when RESEND_API_KEY is not set — signup is already saved.
+    if (error) {
+      console.error("[/api/waitlist] upsert error:", error);
+      return NextResponse.json({ error: "Failed to join waitlist" }, { status: 500 });
+    }
+
+    // Send confirmation email via Resend (graceful no-op if RESEND_API_KEY not set)
     if (process.env.RESEND_API_KEY) {
       try {
         const { Resend } = await import("resend");
         const resend = new Resend(process.env.RESEND_API_KEY);
+
+        const fromEmail = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
+        const subjectLine = language === "ru"
+          ? "Вы в списке ожидания REAPA ✅"
+          : language === "es"
+          ? "Estás en la lista de espera de REAPA ✅"
+          : "You're on the REAPA waitlist ✅";
+
+        const greeting =
+          language === "ru" ? `Привет${name ? `, ${name}` : ""}!` :
+          language === "es" ? `¡Hola${name ? `, ${name}` : ""}!` :
+          `Hi${name ? ` ${name}` : ""}!`;
+
+        const intro =
+          language === "ru"
+            ? "Спасибо за регистрацию в REAPA — AI-помощнике для агентов по недвижимости."
+            : language === "es"
+            ? "Gracias por registrarte en REAPA — el asistente de IA para agentes inmobiliarios."
+            : "Thanks for joining the REAPA waitlist — the AI Copilot for real estate agents.";
+
+        const body = `
+          <div style="font-family:Inter,Arial,sans-serif;background:#0d0d28;color:#e5e7eb;padding:48px 24px;max-width:480px;margin:0 auto;border-radius:16px;">
+            <div style="text-align:center;margin-bottom:32px;">
+              <div style="display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;background:linear-gradient(135deg,#6366f1,#7c3aed);border-radius:14px;">
+                <span style="color:#fff;font-weight:700;font-size:24px;">R</span>
+              </div>
+            </div>
+            <h1 style="color:#fff;font-size:22px;font-weight:700;margin:0 0 12px;">${subjectLine}</h1>
+            <p style="color:#9ca3af;margin:0 0 16px;">${greeting}<br/>${intro}</p>
+            <p style="color:#9ca3af;margin:0 0 24px;">We'll notify you as soon as early access opens. In the meantime, feel free to share your invite link.</p>
+            <a href="https://reapa-mvp.vercel.app" style="display:inline-block;background:#4f46e5;color:#fff;font-weight:600;padding:12px 24px;border-radius:10px;text-decoration:none;">Visit REAPA →</a>
+            <p style="color:#4b5563;font-size:11px;margin-top:32px;">REAPA · Malta · reapa-mvp.vercel.app</p>
+          </div>`;
+
         await resend.emails.send({
-          from: "REAPA <onboarding@resend.dev>",
+          from: fromEmail,
           to: email,
-          subject: "You are on the REAPA beta waitlist! 🏠",
-          html: `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background:#0d0d28;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d0d28;padding:40px 20px;">
-    <tr><td align="center">
-      <table width="560" cellpadding="0" cellspacing="0" style="background:#13132a;border-radius:16px;overflow:hidden;border:1px solid #2d2d6b;">
-        <!-- Header -->
-        <tr>
-          <td style="background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:32px 40px;text-align:center;">
-            <h1 style="margin:0;color:#fff;font-size:28px;font-weight:800;letter-spacing:-0.5px;">🏠 REAPA</h1>
-            <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:14px;">AI Copilot for Real Estate Agents</p>
-          </td>
-        </tr>
-        <!-- Body -->
-        <tr>
-          <td style="padding:36px 40px;">
-            <h2 style="margin:0 0 16px;color:#fff;font-size:22px;font-weight:700;">You&apos;re on the list! 🎉</h2>
-            <p style="margin:0 0 20px;color:#a0a0c8;font-size:15px;line-height:1.6;">
-              ${name ? `Hi <strong style="color:#e0e0ff;">${name}</strong>,<br><br>` : ""}
-              Thank you for joining the <strong style="color:#818cf8;">REAPA beta waitlist</strong>.
-              We&apos;re building the first AI assistant purpose-built for real estate agents in Malta and beyond.
-            </p>
-            <table width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a40;border-radius:12px;padding:20px;margin-bottom:24px;">
-              <tr><td>
-                <p style="margin:0 0 8px;color:#818cf8;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">What&apos;s coming for you</p>
-                <ul style="margin:0;padding-left:20px;color:#a0a0c8;font-size:14px;line-height:1.8;">
-                  <li>🤖 AI lead qualification in <strong style="color:#c4b5fd;">10 languages</strong></li>
-                  <li>📋 AML/KYC compliance automation</li>
-                  <li>📊 Smart CRM with sentiment tracking</li>
-                  <li>⚡ 24/7 auto-responses while you sleep</li>
-                </ul>
-              </td></tr>
-            </table>
-            <p style="margin:0 0 28px;color:#a0a0c8;font-size:14px;line-height:1.6;">
-              We&apos;ll notify you when your early access slot opens. Beta is free and limited to Malta agents first.
-            </p>
-            <table cellpadding="0" cellspacing="0">
-              <tr><td style="border-radius:8px;background:linear-gradient(135deg,#4f46e5,#7c3aed);">
-                <a href="https://reapa-mvp.vercel.app" target="_blank"
-                   style="display:inline-block;padding:14px 28px;color:#fff;font-size:14px;font-weight:600;text-decoration:none;">
-                  Explore REAPA →
-                </a>
-              </td></tr>
-            </table>
-          </td>
-        </tr>
-        <!-- Footer -->
-        <tr>
-          <td style="padding:20px 40px;border-top:1px solid #2d2d6b;">
-            <p style="margin:0;color:#555580;font-size:12px;text-align:center;">
-              REAPA · AI Real Estate Assistant · Malta 🇲🇹<br>
-              <a href="https://reapa-mvp.vercel.app/privacy" style="color:#6366f1;text-decoration:none;">Privacy Policy</a>
-              &nbsp;·&nbsp;
-              <a href="https://reapa-mvp.vercel.app/terms" style="color:#6366f1;text-decoration:none;">Terms of Service</a>
-            </p>
-          </td>
-        </tr>
-      </table>
-    </td></tr>
-  </table>
-</body>
-</html>`,
+          subject: subjectLine,
+          html: body,
         });
-      } catch (emailErr) {
-        // Non-fatal — log and continue. Signup is already saved.
-        console.warn("[/api/waitlist] Confirmation email failed (non-fatal):", emailErr);
+      } catch (mailErr) {
+        // Email failure must not break the signup response
+        console.warn("[/api/waitlist] email send failed:", mailErr);
       }
     }
-    // ─────────────────────────────────────────────────────────────────────────
-    return NextResponse.json({ success: true, message: "You're on the list!" });
+
+    return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("[/api/waitlist]", err);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    console.error("[/api/waitlist] unexpected:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
