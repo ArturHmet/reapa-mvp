@@ -45,11 +45,12 @@ export async function POST(req: NextRequest) {
     const supabase = createAdminClient();
 
     // Check if this email already has a code
-    const { data: existing } = await supabase
+    // Cast required: Supabase TS types don't yet include Sprint 11 referral columns
+    const existing = ((await supabase
       .from("waitlist")
       .select("referral_code")
       .eq("email", email)
-      .maybeSingle();
+      .maybeSingle()).data) as { referral_code: string | null } | null;
 
     if (existing?.referral_code) {
       const inviteUrl = buildInviteUrl(existing.referral_code);
@@ -60,11 +61,11 @@ export async function POST(req: NextRequest) {
     let code = "";
     for (let attempt = 0; attempt < 3; attempt++) {
       const candidate = generateCode();
-      const { data: collision } = await supabase
+      const collision = ((await supabase
         .from("waitlist")
         .select("id")
         .eq("referral_code", candidate)
-        .maybeSingle();
+        .maybeSingle()).data) as { id: string } | null;
       if (!collision) { code = candidate; break; }
     }
     if (!code) {
