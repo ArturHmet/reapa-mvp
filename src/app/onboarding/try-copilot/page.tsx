@@ -25,6 +25,13 @@ export default function OnboardingTryCopilot() {
   const [sending,   setSending]   = useState(false);
   const [responded, setResponded] = useState(false);
   const [leadSaved, setLeadSaved] = useState(false);
+  // Sprint 11 — track whether step 3 completed event has fired
+  const [step3Done, setStep3Done] = useState(false);
+
+  // Sprint 11 — funnel step 3 viewed
+  useEffect(() => {
+    captureEvent("onboarding_step_viewed", { step: 3 });
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -33,6 +40,8 @@ export default function OnboardingTryCopilot() {
   async function completOnboarding() {
     const supabase = getSupabaseBrowser();
     await supabase.auth.updateUser({ data: { onboarding_complete: true } }).catch(() => {});
+    // Sprint 11 — funnel step 4 = completion
+    captureEvent("onboarding_step_completed", { step: 4, lead_saved: leadSaved });
     captureEvent("onboarding_completed", { lead_saved: leadSaved });
     router.replace("/");
   }
@@ -43,6 +52,12 @@ export default function OnboardingTryCopilot() {
     setSending(true);
     setInput("");
     setMessages(prev => [...prev, { role: "user", content: msg }]);
+
+    // Sprint 11 — funnel step 3 completed on first user message sent
+    if (!step3Done) {
+      captureEvent("onboarding_step_completed", { step: 3 });
+      setStep3Done(true);
+    }
 
     try {
       const res = await fetch("/api/chat/qualify", {
@@ -140,7 +155,7 @@ export default function OnboardingTryCopilot() {
           </button>
         )}
 
-        {/* Send button */}
+        {/* Finish button */}
         <button
           onClick={completOnboarding}
           className={`w-full py-3 font-semibold rounded-xl transition-all text-sm ${
