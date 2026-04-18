@@ -69,8 +69,12 @@ export interface Database {
       /**
        * waitlist table — Sprint 11: extended with referral tracking fields.
        *
-       * DB migration required (run once via Supabase SQL editor):
-       * ── see supabase/migrations/20260418_waitlist_referral.sql ──
+       * Insert/Update types are inlined (not self-referential) to ensure
+       * TypeScript resolves them correctly inside Supabase generic constraints.
+       * Self-referential Pick/Omit patterns can collapse to `never` when the
+       * surrounding Database interface is evaluated inside strict generics.
+       *
+       * DB migration: supabase/migrations/20260418_waitlist_referral.sql
        */
       waitlist: {
         Row: {
@@ -85,9 +89,22 @@ export interface Database {
           referred_by: string | null;
           created_at: string;
         };
-        Insert: Pick<Database["public"]["Tables"]["waitlist"]["Row"], "email"> &
-          Partial<Omit<Database["public"]["Tables"]["waitlist"]["Row"], "id" | "created_at">>;
-        Update: Partial<Database["public"]["Tables"]["waitlist"]["Insert"]>;
+        Insert: {
+          email: string;
+          name?: string | null;
+          role?: string | null;
+          language?: string;
+          referral_code?: string | null;
+          referred_by?: string | null;
+        };
+        Update: {
+          email?: string;
+          name?: string | null;
+          role?: string | null;
+          language?: string;
+          referral_code?: string | null;
+          referred_by?: string | null;
+        };
       };
     };
     Functions: {
