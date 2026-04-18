@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n/config";
@@ -29,6 +29,11 @@ export default function OnboardingLanguage() {
   const [selected, setSelected] = useState<LangCode>(() => detectLocale());
   const [saving,   setSaving]   = useState(false);
 
+  // Sprint 11 — funnel step 2 viewed
+  useEffect(() => {
+    captureEvent("onboarding_step_viewed", { step: 2 });
+  }, []);
+
   async function handleContinue() {
     setSaving(true);
     const supabase = getSupabaseBrowser();
@@ -37,6 +42,8 @@ export default function OnboardingLanguage() {
     // Switch i18n locale immediately (no reload)
     await i18n.changeLanguage(selected);
     captureEvent("onboarding_language_selected", { language: selected });
+    // Sprint 11 — funnel step 2 completed
+    captureEvent("onboarding_step_completed", { step: 2, language: selected });
     router.push("/onboarding/try-copilot");
   }
 
