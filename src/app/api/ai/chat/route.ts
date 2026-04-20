@@ -4,7 +4,7 @@ import { rateLimit, getClientId } from "@/lib/rate-limit";
 import { runNLPPipeline } from "@/lib/ai/nlp-pipeline";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { streamText } from "ai";
-import { extractLeadProfile } from "@/lib/nlp/stage6-extractor";
+import { extractLeadProfile, persistLeadProfile } from "@/lib/nlp/stage6-extractor";
 
 // BUG-039/BUG-037: nodejs runtime — process.env resolved at runtime
 export const runtime = "nodejs";
@@ -20,7 +20,7 @@ function validateInput(body: unknown): { messages: ChatMessage[] } | null {
   for (const msg of b.messages) {
     if (!msg || typeof msg !== "object") return null;
     const m = msg as Record<string, unknown>;
-    if (!["user", "assistant"].includes(m.role as string)) return null;
+    if (![\"user\", \"assistant\"].includes(m.role as string)) return null;
     if (typeof m.content !== "string") return null;
     if ((m.content as string).length > 4000) return null;
   }
@@ -129,17 +129,28 @@ export async function POST(req: NextRequest) {
     temperature: 0.7,
   });
 
-  // ── Stage 6: NLP structured extraction — fire-and-forget, never blocks stream ──
-  const geminiKeyForExtraction = geminiKey;
-  const messagesForExtraction = [...messages];
-  result.textStream
-    .pipeTo(new WritableStream({ write() {} }))
-    .catch(() => {})
-    .finally(() => {
-      extractLeadProfile(messagesForExtraction, geminiKeyForExtraction).catch(() => {});
+  // ── Stage 6: NLP structured extraction + Supabase persistence ────────────
+  // Uses result.text Promise (resolves when full stream completes) so we never
+  // interfere with the textStream consumed by toDataStreamResponse().
+  // Entirely fire-and-forget — never blocks or affects the streaming response.
+  const capturedMessages = [...messages];
+  const capturedKey = geminiKey;
+  const conversationId = clientId; // client IP hash — session proxy until session IDs are added
+
+  result.text
+    .then(async () => {
+      const profile = await extractLeadProfile(capturedMessages, capturedKey);
+      await persistLeadProfile(conversationId, profile);
+    })
+    .catch(() => {
+      // Non-fatal — stream already delivered to client
     });
 
   return result.toDataStreamResponse({
-    headers: { "X-RateLimit-Remaining": String(rl.remaining) },
+    headers: {
+      "X-RateLimit-Remaining": String(rl.remaining),
+      // X-Conversation-Id lets the client correlate future GET /api/lead-profile requests
+      "X-Conversation-Id": conversationId,
+    },
   });
 }
