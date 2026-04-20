@@ -4,6 +4,7 @@ import { rateLimit, getClientId } from "@/lib/rate-limit";
 import { runNLPPipeline } from "@/lib/ai/nlp-pipeline";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { streamText } from "ai";
+import { extractLeadProfile } from "@/lib/nlp/stage6-extractor";
 
 // BUG-039/BUG-037: nodejs runtime — process.env resolved at runtime
 export const runtime = "nodejs";
@@ -127,6 +128,16 @@ export async function POST(req: NextRequest) {
     maxTokens: 4096,
     temperature: 0.7,
   });
+
+  // ── Stage 6: NLP structured extraction — fire-and-forget, never blocks stream ──
+  const geminiKeyForExtraction = geminiKey;
+  const messagesForExtraction = [...messages];
+  result.textStream
+    .pipeTo(new WritableStream({ write() {} }))
+    .catch(() => {})
+    .finally(() => {
+      extractLeadProfile(messagesForExtraction, geminiKeyForExtraction).catch(() => {});
+    });
 
   return result.toDataStreamResponse({
     headers: { "X-RateLimit-Remaining": String(rl.remaining) },
