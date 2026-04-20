@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Calendar, Clock, ArrowRight } from 'lucide-react';
 
 const POST_SLUG = 'inside-reapa-ai-copilot';
 const CANONICAL = `https://reapa-mvp.vercel.app/blog/${POST_SLUG}`;
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'REAPA Team' }],
   alternates: { canonical: CANONICAL },
+  robots: { index: true, follow: true },
   openGraph: {
     title: 'Inside the REAPA AI Copilot: How It Actually Works',
     description:
@@ -44,6 +46,21 @@ export const metadata: Metadata = {
     images: ['https://reapa-mvp.vercel.app/og-image.png'],
   },
 };
+
+const relatedPosts = [
+  {
+    slug: 'post-1-five-daily-tasks-ai-solutions',
+    title: 'The 5 Daily Tasks Eating Your Time as a Real Estate Agent (And How AI Solves Each One)',
+    date: '2026-04-16',
+    readTime: 8,
+  },
+  {
+    slug: 'post-2-ai-lead-qualification-real-estate',
+    title: 'How AI Lead Qualification Works for Real Estate Agents (And Why It Matters in 2026)',
+    date: '2026-04-18',
+    readTime: 7,
+  },
+];
 
 export default function BlogPostInsideREAPACopilot() {
   return (
@@ -97,9 +114,23 @@ export default function BlogPostInsideREAPACopilot() {
             Paul&apos;s Bay, not Sliema. It will not know to ask about AIP permit eligibility for
             the non-EU buyer sending the message in Russian.
           </p>
-          <p className="text-gray-300 leading-relaxed">
+          <p className="text-gray-300 leading-relaxed mb-4">
             Domain context is not a nice-to-have. It is the difference between a useful{' '}
             <strong>AI real estate assistant</strong> and a frustrating one.
+          </p>
+          {/* Contextual link → Post 1 */}
+          <p className="text-gray-300 leading-relaxed">
+            The five most time-consuming tasks in a real estate agent&apos;s day — answering
+            repetitive questions, writing listings, following up, scheduling viewings, and
+            qualifying leads — are exactly what domain-specific AI is built to handle. We broke
+            down each one in detail in{' '}
+            <Link
+              href="/blog/post-1-five-daily-tasks-ai-solutions"
+              className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition-colors"
+            >
+              The 5 Daily Tasks Eating Your Time as a Real Estate Agent
+            </Link>
+            .
           </p>
         </section>
 
@@ -169,7 +200,7 @@ export default function BlogPostInsideREAPACopilot() {
           <h3 className="text-lg font-semibold text-indigo-300 mb-3">
             Entity Extraction — Structured Fields Across 10 Languages
           </h3>
-          <ul className="list-disc list-inside space-y-1 text-gray-300 mb-6">
+          <ul className="list-disc list-inside space-y-1 text-gray-300 mb-4">
             {[
               'Location preferences',
               'Property type',
@@ -181,6 +212,17 @@ export default function BlogPostInsideREAPACopilot() {
               <li key={field}>{field}</li>
             ))}
           </ul>
+          {/* Contextual link → Post 2 */}
+          <p className="text-gray-300 leading-relaxed mb-6">
+            These structured fields feed directly into REAPA&apos;s{' '}
+            <Link
+              href="/blog/post-2-ai-lead-qualification-real-estate"
+              className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition-colors"
+            >
+              AI lead qualification system
+            </Link>
+            , which scores every conversation as hot, warm, or cold before any agent sees it.
+          </p>
 
           <h3 className="text-lg font-semibold text-indigo-300 mb-3">
             Conversation Context Persistence
@@ -209,8 +251,14 @@ export default function BlogPostInsideREAPACopilot() {
             timeline?), and offers to send matching listings.
           </p>
           <p className="mt-3 text-gray-300 leading-relaxed">
-            The agent wakes up to a qualified lead in their dashboard. The conversation has already
-            progressed past initial enquiry.
+            The agent wakes up to a qualified lead in their dashboard — scored and segmented by the{' '}
+            <Link
+              href="/blog/post-2-ai-lead-qualification-real-estate"
+              className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition-colors"
+            >
+              AI qualification pipeline
+            </Link>
+            . The conversation has already progressed past initial enquiry.
           </p>
         </section>
 
@@ -271,6 +319,40 @@ export default function BlogPostInsideREAPACopilot() {
             No credit card required · Beta access · Malta &amp; EU agents
           </p>
         </section>
+
+        {/* ── Related Posts ──────────────────────────────────────────────── */}
+        <section className="mt-16 pt-10 border-t border-gray-800">
+          <h2 className="text-xl font-bold text-white mb-6">Related Articles</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {relatedPosts.map((related) => (
+              <Link
+                key={related.slug}
+                href={`/blog/${related.slug}`}
+                className="group block bg-gray-800/40 border border-gray-700 rounded-xl p-5 hover:border-indigo-500/40 hover:bg-gray-800/60 transition-all duration-200"
+              >
+                <div className="flex items-center gap-3 text-xs text-gray-500 mb-2">
+                  <span className="flex items-center gap-1">
+                    <Calendar size={11} />
+                    {new Date(related.date).toLocaleDateString('en-GB', {
+                      day: 'numeric', month: 'short', year: 'numeric',
+                    })}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock size={11} />
+                    {related.readTime} min
+                  </span>
+                </div>
+                <h3 className="text-sm font-semibold text-gray-200 leading-snug group-hover:text-indigo-300 transition-colors line-clamp-2">
+                  {related.title}
+                </h3>
+                <div className="flex items-center gap-1 text-xs text-indigo-400 mt-3">
+                  Read article{' '}
+                  <ArrowRight size={11} className="group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
       </article>
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
@@ -280,6 +362,7 @@ export default function BlogPostInsideREAPACopilot() {
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-gray-300 transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-gray-300 transition-colors">Terms</Link>
+            <Link href="/blog" className="hover:text-gray-300 transition-colors">Blog</Link>
             <Link href="/" className="hover:text-gray-300 transition-colors">Home</Link>
           </div>
         </div>
