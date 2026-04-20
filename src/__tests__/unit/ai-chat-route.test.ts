@@ -40,13 +40,23 @@ describe("POST /api/ai/chat", () => {
       REAPA_SYSTEM_PROMPT: vi.fn().mockReturnValue("You are REAPA, a Malta real estate AI."),
     }));
     vi.doMock("ai", () => ({
-      streamText: vi.fn().mockReturnValue({ textStream: textChunks("Hello", " world") }),
+      streamText: vi.fn().mockReturnValue({
+        textStream: textChunks("Hello", " world"),
+        toDataStreamResponse: vi.fn().mockReturnValue(
+          new Response('0:"Hello"\n0:" world"\n', {
+            status: 200,
+            headers: {
+              "Content-Type": "text/plain; charset=utf-8",
+              "X-RateLimit-Remaining": "19",
+            },
+          })
+        ),
+      }),
     }));
     vi.doMock("@ai-sdk/google", () => ({
       createGoogleGenerativeAI: vi.fn().mockReturnValue(vi.fn().mockReturnValue("gemini-model")),
     }));
     process.env.GEMINI_API_KEY = "test-gemini-key-abc123";
-    delete process.env.GROQ_API_KEY;
   });
 
   // ── Rate limiting ───────────────────────────────────────────────────────
@@ -168,7 +178,14 @@ describe("POST /api/ai/chat", () => {
     }));
     vi.doMock("@/lib/ai/nlp-pipeline", () => ({ runNLPPipeline: nlpMock }));
     vi.doMock("@/prompts", () => ({ REAPA_SYSTEM_PROMPT: vi.fn().mockReturnValue("system") }));
-    vi.doMock("ai", () => ({ streamText: vi.fn().mockReturnValue({ textStream: textChunks("ok") }) }));
+    vi.doMock("ai", () => ({
+        streamText: vi.fn().mockReturnValue({
+          textStream: textChunks("ok"),
+          toDataStreamResponse: vi.fn().mockReturnValue(
+            new Response('0:"ok"\n', { status: 200, headers: { "Content-Type": "text/plain; charset=utf-8", "X-RateLimit-Remaining": "10" } })
+          ),
+        }),
+      }));
     vi.doMock("@ai-sdk/google", () => ({ createGoogleGenerativeAI: vi.fn().mockReturnValue(vi.fn()) }));
     process.env.GEMINI_API_KEY = "key";
     const { POST } = await import("@/app/api/ai/chat/route");
@@ -191,7 +208,14 @@ describe("POST /api/ai/chat", () => {
       runNLPPipeline: vi.fn().mockRejectedValue(new Error("franc crash")),
     }));
     vi.doMock("@/prompts", () => ({ REAPA_SYSTEM_PROMPT: vi.fn().mockReturnValue("") }));
-    vi.doMock("ai", () => ({ streamText: vi.fn().mockReturnValue({ textStream: textChunks("fallback ok") }) }));
+    vi.doMock("ai", () => ({
+        streamText: vi.fn().mockReturnValue({
+          textStream: textChunks("fallback ok"),
+          toDataStreamResponse: vi.fn().mockReturnValue(
+            new Response('0:"fallback ok"\n', { status: 200, headers: { "Content-Type": "text/plain; charset=utf-8", "X-RateLimit-Remaining": "10" } })
+          ),
+        }),
+      }));
     vi.doMock("@ai-sdk/google", () => ({ createGoogleGenerativeAI: vi.fn().mockReturnValue(vi.fn()) }));
     process.env.GEMINI_API_KEY = "test-key";
     const { POST } = await import("@/app/api/ai/chat/route");
@@ -217,7 +241,6 @@ describe("POST /api/ai/chat", () => {
     vi.doMock("ai", () => ({ streamText: vi.fn() }));
     vi.doMock("@ai-sdk/google", () => ({ createGoogleGenerativeAI: vi.fn() }));
     delete process.env.GEMINI_API_KEY;
-    delete process.env.GROQ_API_KEY;
     const { POST } = await import("@/app/api/ai/chat/route");
     const res = await POST(makeReq({ messages: validMessages }));
     expect(res.status).toBe(503);
