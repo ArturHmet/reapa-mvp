@@ -152,6 +152,41 @@ export interface Database {
           agent_id?: string | null;
         };
       };
+      /**
+       * lead_profiles table — S12-6: Stage 6 structured NLP extraction results.
+       * Persisted per conversation_id (upsert) after stream completes.
+       */
+      lead_profiles: {
+        Row: {
+          id: string;
+          conversation_id: string;
+          budget_range: string | null;
+          property_type: string | null;
+          timeline_urgency: string;
+          location_preference: string | null;
+          contact_intent: string;
+          extracted_at: string;
+        };
+        Insert: {
+          conversation_id: string;
+          budget_range?: string | null;
+          property_type?: string | null;
+          timeline_urgency?: string;
+          location_preference?: string | null;
+          contact_intent?: string;
+          extracted_at?: string;
+        };
+        Update: {
+          conversation_id?: string;
+          budget_range?: string | null;
+          property_type?: string | null;
+          timeline_urgency?: string;
+          location_preference?: string | null;
+          contact_intent?: string;
+          extracted_at?: string;
+        };
+        Relationships: [];
+      };
       rate_limits: {
         Row: { key: string; count: number; window_start: string; };
         Insert: { key: string; count: number; };
