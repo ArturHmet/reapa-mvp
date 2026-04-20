@@ -35,7 +35,6 @@ export async function GET() {
         database: { status: dbStatus, latency_ms: dbLatencyMs },
         ai: {
           gemini_key_set: !!(process.env.GEMINI_API_KEY),
-          groq_key_set: !!(process.env.GROQ_API_KEY),
         },
       },
     },
