@@ -92,6 +92,110 @@ Beta access is now open. First 100 agents get founding member pricing, locked in
 *Sources: National Association of Realtors Agent Productivity Study 2025; InsideSales.com Lead Response Management Study; Salesforce State of Sales Report 2025.*
 `;
 
+const post2Content = `
+# How AI Lead Qualification Works for Real Estate Agents (And Why It Matters in 2026)
+
+Not every inquiry deserves the same urgency. That sentence is controversial — but it's the foundation of every high-performing real estate team.
+
+The agent who treats a pre-approved buyer with a 60-day close window the same as someone "just browsing" is working at a fraction of their potential. Manual qualification doesn't scale. AI qualification does.
+
+---
+
+## The Qualification Gap
+
+The typical agent receives 30–80 enquiries per month. Research consistently shows that fewer than 20% are serious buyers with a clear timeline. The rest are in research mode, price-checking, or testing the market.
+
+Without a qualification layer, three things happen:
+
+1. **Hot leads wait.** A serious buyer who submits a form at 11pm doesn't hear back until morning — by which time they've contacted two other agents.
+2. **Agent time evaporates.** Hours go into long calls with people who won't transact for 18 months.
+3. **Follow-up fails.** Without a system, warm leads fall through the cracks because agents are too busy handling unqualified inquiries.
+
+---
+
+## The 5 Qualification Questions That Matter
+
+Effective qualification doesn't require 20 questions. Five are enough to segment any lead into a clear priority bucket:
+
+**1. Timeline — "When are you looking to move?"**
+Nothing reveals intent like timeline. "ASAP" and "we're just looking" require completely different responses and follow-up cadences.
+
+**2. Budget — "What's your approximate budget range?"**
+Budget anchors the entire conversation. An agent showing a €600K penthouse to someone with a €300K ceiling wastes time on both sides.
+
+**3. Financing status — "Are you purchasing cash, or do you have mortgage pre-approval?"**
+Pre-approval signals a buyer who has done the work. Cash buyers close fastest. Unfinanced buyers at the early stage need different nurturing.
+
+**4. Property type and location — "What type of property, and where in Malta?"**
+Sliema, Valletta, and Mellieħa are different markets with different price points, buyer profiles, and availability. Locality narrows inventory immediately.
+
+**5. Buyer type — "Are you an EU or non-EU citizen?"**
+For non-EU buyers, the AIP permit requirement changes the purchase process entirely. Knowing this at the first touch prevents wasted viewings and legal confusion.
+
+---
+
+## Hot, Warm, and Cold: The Three-Tier Lead Model
+
+Once REAPA collects qualification data, it assigns a temperature score:
+
+**🔴 HOT** — Timeline under 3 months, pre-approved or cash, specific location, EU citizen or AIP-aware non-EU buyer. Agent is notified immediately.
+
+**🟡 WARM** — Timeline 3–9 months, researching financing, open to location. Enters a structured nurture sequence with touchpoints every 10–14 days.
+
+**🔵 COLD** — No clear timeline, early research phase. Automated check-ins quarterly. No agent time spent until they self-escalate.
+
+This three-tier model keeps agents focused where conversion is actually possible.
+
+---
+
+## How REAPA Implements AI Qualification
+
+REAPA's qualification layer runs on a multilingual NLP pipeline that operates before any agent sees the lead.
+
+When a buyer submits a message — in English, Russian, or Spanish — REAPA:
+
+1. **Detects language and intent** using a lightweight franc-based classifier
+2. **Extracts structured entities**: location, budget range, property type, timeline, buyer type
+3. **Assigns a lead temperature score**: HOT, WARM, or COLD based on extracted data
+4. **Routes appropriately**: instant agent notification for HOT, automated nurture for WARM and COLD
+
+The entire pipeline runs in under 2 seconds. The agent's dashboard shows a prioritized lead list, not a raw inbox.
+
+---
+
+## What Agents Gain
+
+Agents using structured qualification consistently report three shifts:
+
+**More time on serious buyers.** When the qualification layer filters the pipeline, agents spend less time on exploratory conversations and more time on viewings and closing.
+
+**Faster response to hot leads.** An AI that responds within 30 seconds to any inquiry — regardless of time zone — converts at a dramatically higher rate than an agent checking messages between viewings.
+
+**Better follow-up.** Warm leads don't go cold when a structured system touches them every 10–14 days automatically. Human follow-up only kicks in when the lead self-qualifies to hot.
+
+---
+
+## The Compounding Effect
+
+Qualification isn't a one-time event. It's a process that improves over time.
+
+Every conversation REAPA handles generates structured data: intent, budget range, timeline, location preference. Over months, this data reveals patterns — which neighbourhoods attract which buyer profiles, which budget ranges are most active, which inquiry sources produce the highest quality leads.
+
+Agents who run a qualification system long enough stop guessing about where to spend their time. The data tells them.
+
+---
+
+## Getting Started
+
+REAPA's AI qualification layer is live and handling real inquiries from Malta-based real estate agents. Beta access is open for the first 100 founding agents.
+
+**[Join the waitlist →](https://reapa-mvp.vercel.app)**
+
+---
+
+*Related: [Inside the REAPA AI Copilot: How It Actually Works](/blog/inside-reapa-ai-copilot)*
+`;
+
 export const posts: BlogPost[] = [
   {
     slug: "post-1-five-daily-tasks-ai-solutions",
@@ -107,6 +211,21 @@ export const posts: BlogPost[] = [
     readTime: 8,
     targetKeyword: "AI tools for real estate agents",
     content: post1Content,
+  },
+  {
+    slug: "post-2-ai-lead-qualification-real-estate",
+    title:
+      "How AI Lead Qualification Works for Real Estate Agents (And Why It Matters in 2026)",
+    metaTitle:
+      "AI Lead Qualification for Real Estate Agents | Hot, Warm & Cold Scoring",
+    metaDescription:
+      "Learn how AI lead qualification works for real estate agents \u2014 the 5 qualification questions, hot/warm/cold scoring, and how REAPA routes leads automatically in under 2 seconds.",
+    excerpt:
+      "Not every inquiry deserves the same urgency. Here\u2019s how REAPA\u2019s AI qualification layer scores every lead as hot, warm, or cold \u2014 before any agent involvement.",
+    date: "2026-04-18",
+    readTime: 7,
+    targetKeyword: "AI lead qualification real estate",
+    content: post2Content,
   },
 ];
 
