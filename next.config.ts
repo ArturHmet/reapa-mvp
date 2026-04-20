@@ -23,7 +23,6 @@ const nextConfig: NextConfig = {
   // BUG-037: expose server-side env vars via next.config — insurance for edge route static inlining
   env: {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
-    GROQ_API_KEY: process.env.GROQ_API_KEY,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   },
   async headers() {
@@ -64,7 +63,7 @@ const nextConfig: NextConfig = {
               "style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com",
               "font-src \'self\' https://fonts.gstatic.com",
               "img-src \'self\' data: blob: https:",
-              "connect-src \'self\' https://*.supabase.co https://api.notion.com https://api.openai.com https://api.groq.com https://generativelanguage.googleapis.com https://eu.posthog.com",
+              "connect-src \'self\' https://*.supabase.co https://api.notion.com https://api.openai.com https://generativelanguage.googleapis.com https://eu.posthog.com",
               "frame-ancestors \'none\'",
             ].join("; "),
           },
