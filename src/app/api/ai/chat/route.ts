@@ -20,7 +20,7 @@ function validateInput(body: unknown): { messages: ChatMessage[] } | null {
   for (const msg of b.messages) {
     if (!msg || typeof msg !== "object") return null;
     const m = msg as Record<string, unknown>;
-    if (![\"user\", \"assistant\"].includes(m.role as string)) return null;
+    if (!["user", "assistant"].includes(m.role as string)) return null;
     if (typeof m.content !== "string") return null;
     if ((m.content as string).length > 4000) return null;
   }

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://reapa-mvp.vercel.app/sitemap.xml

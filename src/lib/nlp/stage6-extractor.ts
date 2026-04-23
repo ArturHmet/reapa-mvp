@@ -103,6 +103,7 @@ export async function persistLeadProfile(
   if (!conversationId) return;
   try {
     const supabase = createAdminClient();
+    // @ts-expect-error — Supabase v2 Database generic narrows Insert to never across tables with mixed Relationships fields; row shape matches lead_profiles.Insert in src/types/database.ts
     const { error } = await supabase.from("lead_profiles").upsert(
       {
         conversation_id: conversationId,

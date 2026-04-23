@@ -1,142 +1,186 @@
-import type {Metadata} from "next";
-import {notFound} from "next/navigation";
+import { getAllPosts, getPostBySlug } from "@/lib/blog";
+import { MDXRemote } from "next-mdx-remote/rsc";
 import Link from "next/link";
-import {getPostBySlug, getAllPosts} from "@/content/blog/posts";
-import {Calendar, Clock, ArrowLeft, ArrowRight, ExternalLink} from "lucide-react";
-import {marked} from "marked";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
-// BUG-041: hard-404 any slug not in generateStaticParams — prevents soft-404 SEO risk
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return getAllPosts().map((post) => ({ slug: post.slug }));
+interface Props {
+  params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  const posts = getAllPosts();
+  return posts.map((post) => ({ slug: post.slug }));
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = getPostBySlug(slug);
-  if (!post) return {};
+  if (!post) return { title: "Post not found" };
+
   return {
-    title: post.metaTitle,
-    description: post.metaDescription,
-    openGraph: { 
-      title: post.metaTitle,
-      description: post.metaDescription,
+    title: `${post.title} | REAPA Blog`,
+    description: post.description,
+    keywords: [post.keyword, "Malta real estate", "REAPA"],
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      url: `https://reapa-mvp.vercel.app/blog/${slug}`,
+      siteName: "REAPA",
       type: "article",
       publishedTime: post.date,
+      images: [
+        {
+          url: `https://reapa-mvp.vercel.app/blog/${slug}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
     },
-    keywords: [post.targetKeyword],
-    robots: { index: true, follow: true },
-    twitter: { card: "summary_large_image", title: post.metaTitle },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.description,
+    },
+    alternates: {
+      canonical: `https://reapa-mvp.vercel.app/blog/${slug}`,
+    },
   };
 }
 
-export default async function BlogPostPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
   if (!post) notFound();
 
-  marked.setOptions({ breaks: false });
-  const htmlContent = await marked(post.content);
+  const allPosts = getAllPosts();
+  const currentIndex = allPosts.findIndex((p) => p.slug === slug);
+  const prevPost =
+    currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
+  const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
 
-  // Related posts: all posts except current, max 2
-  const relatedPosts = getAllPosts().filter((p) => p.slug !== slug).slice(0, 2);
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.description,
+    datePublished: post.date,
+    author: {
+      "@type": "Organization",
+      name: "REAPA",
+      url: "https://reapa-mvp.vercel.app",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "REAPA",
+      url: "https://reapa-mvp.vercel.app",
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://reapa-mvp.vercel.app/blog/${slug}`,
+    },
+    keywords: post.keyword,
+  };
 
   return (
-    <div className="max-w-3Xl mx-auto py-4 space-y-8">
-      <Link
-        href="/blog"
-        className="inline-flex items-center gap-2 text-sm text-[var(-zmtext-muted)] hover:text-[var(--text)] transition-colors"
-      >
-        <ArrowLeft size={14} />
-        All articles
-      </Link>
-
-      <div className="space-y-4">
-        <div className="flex items-center gap-4 text-xs text-[var(--text-muted)]">
-          <span className="flex items-center gap-1.5">
-            <Calendar size={12} />
-            {new Date(post.date).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Clock size={12} />
-            {post.readTime} min read
-          </span>
-        </div>
-        <h1 className="text-2xl md:text-3xl font-bold leading-tight">
-          {post.title}
-        </h1>
-        <p className="text-[var(--text-muted)] text-base leading-relaxed">
-          {post.excerpt}
-        </p>
-        <div className="border-b border-[var(--border)]" />
-      </div>
-
-      <article
-        className="prose-reapa"
-        dangerouslySetInnerHTML={{ __html: htmlContent }}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
+      <main className="min-h-screen bg-slate-950 text-slate-100">
+        <div className="max-w-3xl mx-auto px-4 py-16">
+          <Link
+            href="/blog"
+            className="inline-flex items-center text-sm text-slate-400 hover:text-slate-200 transition-colors mb-10"
+          >
+            <svg
+              className="mr-1.5 w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back to Blog
+          </Link>
 
-      <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border border-indigo-500/20 rounded-xl p-6 space-y-3">
-        <p className="font-semibold text-lg">Stop doing work a machine can do better.</p>
-        <p className="text-sm text-[var(-zltext-muted)]">
-          REAPA handles all five tasks &#8214; 10 languages, 24/7. Join the founding 100 agents before beta pricing closes.
-        </p>
-        <Link
-          href="/waitlist"
-          className="inline-flex items-center gap-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
-        >
-          Join the waitlist &#8594;
-          <ExternalLink size={13} />
-        </Link>
-      </div>
+          <header className="mb-10">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                {post.category}
+              </span>
+              <time className="text-sm text-slate-500" dateTime={post.date}>
+                {new Date(post.date).toLocaleDateString("en-MT", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </time>
+              <span className="text-sm text-slate-600">·</span>
+              <span className="text-sm text-slate-500">{post.readingTime}</span>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-4">
+              {post.title}
+            </h1>
+            <p className="text-lg text-slate-400">{post.description}</p>
+          </header>
 
-      {/* ── Related Posts ─────────────────────────────────────────────────── */}
-      {relatedPosts.length > 0 && (
-        <div className="border-t border-[var(--border)] pt-8 space-y-4">
-          <h2 className="text-lg font-semibold">Related Articles</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {relatedPosts.map((related) => (
-              <Link
-                key={related.slug}
-                href={`/blog/${related.slug}`}
-                className="group block bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5 hover:border-[var(--accent)]/40 hover:bg-[var(--bg-card-hover)] transition-all duration-200"
-              >
-                <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] mb-2">
-                  <Calendar size={11} />
-                  {new Date(related.date).toLocaleDateString("en-GB", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                  <span className="flex items-center gap-1">
-                    <Clock size={11} />
-                    {related.readTime} min
-                  </span>
-                </div>
-                <h3 className="text-sm font-semibold leading-snug mb-1 group-hover:text-[var(--accent)] transition-colors line-clamp-2">
-                  {related.title}
-                </h3>
-                <div className="flex items-center gap-1 text-xs text-[var(--accent)] mt-2">
-                  Read <ArrowRight size={11} className="group-hover:translate-x-0.5 transition-transform" />
-                </div>
-              </Link>
-            ))}
+          <article className="prose prose-invert prose-slate max-w-none prose-headings:text-white prose-h2:text-2xl prose-h3:text-xl prose-p:text-slate-300 prose-p:leading-relaxed prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-slate-200 prose-li:text-slate-300 prose-code:text-slate-200 prose-code:bg-slate-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-blockquote:border-slate-600 prose-blockquote:text-slate-400">
+            <MDXRemote source={post.content} />
+          </article>
+
+          <div className="mt-16 p-8 bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-2xl text-center">
+            <h3 className="text-2xl font-bold text-white mb-3">
+              Ready to automate your real estate business?
+            </h3>
+            <p className="text-slate-400 mb-6">
+              Join Malta&apos;s most forward-thinking agents on the REAPA waitlist.
+            </p>
+            <a
+              href="https://reapa-mvp.vercel.app"
+              className="inline-flex items-center gap-2 bg-white text-slate-900 font-semibold px-6 py-3 rounded-xl hover:bg-slate-100 transition-colors"
+            >
+              Join the REAPA waitlist →
+            </a>
           </div>
+
+          {(prevPost || nextPost) && (
+            <nav className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {prevPost && (
+                <Link
+                  href={`/blog/${prevPost.slug}`}
+                  className="group block bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-600 transition-all"
+                >
+                  <div className="text-xs text-slate-500 mb-1.5">← Previous</div>
+                  <div className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">
+                    {prevPost.title}
+                  </div>
+                </Link>
+              )}
+              {nextPost && (
+                <Link
+                  href={`/blog/${nextPost.slug}`}
+                  className="group block bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-600 transition-all md:text-right"
+                >
+                  <div className="text-xs text-slate-500 mb-1.5">Next →</div>
+                  <div className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">
+                    {nextPost.title}
+                  </div>
+                </Link>
+              )}
+            </nav>
+          )}
         </div>
-      )}
-    </div>
+      </main>
+    </>
   );
 }

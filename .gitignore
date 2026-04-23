@@ -36,6 +36,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# next-sitemap (regenerated on every build)
+/public/sitemap.xml
+/public/sitemap-*.xml
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
