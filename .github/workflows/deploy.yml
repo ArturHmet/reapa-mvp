@@ -1,0 +1,28 @@
+name: Deploy to Hetzner
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 204.168.196.141
+          username: root
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            export NVM_DIR="$HOME/.nvm"
+            source "$NVM_DIR/nvm.sh"
+            cd /opt/reapa/app
+            git pull origin main
+            npm install
+            npm run build
+            cp -r public .next/standalone/
+            cp -r .next/static .next/standalone/.next/static
+            pm2 restart reapa
+            pm2 save
+            echo "✅ Deployment complete"
